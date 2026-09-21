@@ -2,7 +2,7 @@
 // include_once "../php/auth.php";
 include_once "../../private/api/session.php";
 // include_once "../php/db.php";
-// include_once "../php/gcal.php";
+include_once "../../private/api/gcal.php";
 // include_once "../php/files.php";
 
 class Unclecheah {
@@ -21,7 +21,7 @@ class Unclecheah {
 	}
 
 	public function run () {
-		global $gSession;
+		global $gSession, $gGCal;
 
 		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {           //  POST, PUT, PATCH
 			$json = file_get_contents ('php://input');
@@ -39,9 +39,9 @@ class Unclecheah {
 			// else if ($data['action'] == 'db_update')	echo $gDb->update ($data);
 			// else if ($data['action'] == 'db_delete')	echo $gDb->delete ($data);
 
-			// else if ($data['action'] == 'gcal_insert')	echo $gGCal->insert ($data);
-			// else if ($data['action'] == 'gcal_update')	echo $gGCal->update ($data);
-			// else if ($data['action'] == 'gcal_delete')	echo $gGCal->delete ($data);
+			else if ($data['action'] == 'gcal_insert')	echo $gGCal->insert ($data);
+			else if ($data['action'] == 'gcal_update')	echo $gGCal->update ($data);
+			else if ($data['action'] == 'gcal_delete')	echo $gGCal->delete ($data);
 
 			// else if ($data['action'] == 'files_getDetails')		echo $gFiles->getDetails ($data['hymns']);
 			// else if ($data['action'] == 'files_getAllHymns')	echo $gFiles->getAllHymns ();
