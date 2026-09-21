@@ -4,11 +4,13 @@ import gSession from '../../api/session.js';
 class TestSession {
 	#sessActive = false;
 	#sessID = '';
+	#username = '';
 	#keyvalue = '';
 
 	upd = async () => {
 		$("#sessActive").html (`active: ${this.#sessActive}`);
 		$("#sessID").html (`id: ${this.#sessID}`);
+		$("#username").html (`username: ${this.#username}`);
 		$("#keyvalue").html (`keyvalue: ${this.#keyvalue}`);
 	}
 
@@ -34,6 +36,7 @@ class TestSession {
 
 	sessID = async () => {
 		this.#sessID = await gSession.sessid ();
+		this.#username = await gSession.getvar ('username');
 		this.upd ();
 		console.log (this.#sessID);
 	}
@@ -56,6 +59,7 @@ class TestSession {
 	run = async () => {
 		$('main').append (`<p id="sessActive">active: ${this.#sessActive}</p>`);
 		$('main').append (`<p id="sessID">id: ${this.#sessID}</p>`);
+		$('main').append (`<p id="username">username: ${this.#username}</p>`);
 		$('main').append (`<p id="keyvalue">keyvalue: ${this.#keyvalue}</p>`);
 		// $('#sessID').html ('id: blah');
 		$('main').append (`<button type="button" id="active" class="btn btn-primary">active?</button>`);

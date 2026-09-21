@@ -4,7 +4,7 @@
 	error_reporting(E_ALL);
 
 
-	include_once __DIR__ . '/../config/config.php';
+	include_once __DIR__ . '/../config/secret.php';
 
 
 	function isEmpty ($inV) {

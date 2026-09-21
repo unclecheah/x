@@ -19,6 +19,8 @@ function testSession () {
 
 	$id = $gSession->sessId();
 	$messages[] = "sessId: $id";
+	$username = $gSession->get("username");
+	$messages[] = "username: " . var_export($username, true);
 
 	$messages[] = "=== set/get session var ===";
 	$gSession->set("key1", "value123");

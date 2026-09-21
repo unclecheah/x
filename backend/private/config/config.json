@@ -1,0 +1,65 @@
+{
+	"maxEvents": 10,
+	
+	"litClr": [
+		{
+			"clr": "fuchsia",
+			"evt": [
+				"3rd Sunday of Advent", "4th Sunday of Lent"
+			]
+		},
+		{
+			"clr": "red",
+			"evt": [
+				"Palm Sunday", "Good Friday", "Pentecost", "St John The Baptist", "Exaltation of the Holy Cross",
+				"Exaltation of the Cross", "Triumph of the Cross"
+			]
+		},
+		{
+			"clr": "indigo",
+			"evt": [
+				"Ash Wednesday", "Advent", "Lent", "Holy Saturday", "All Soul", "Funeral"
+			]
+		},
+		{
+			"clr": "white",
+			"evt": [
+				"Christmas", "Holy Family", "Epiphany", "Baptism of the Lord", "Holy Thursday", "Maundy Thursday", "Easter",
+				"Holy Trinity", "Corpus Christi", "Body and Blood", "Ascension", "Assumption", "Mary", "Angel", "St Joseph",
+				"Baptism", "Matrimony", "Wedding", "Holy Orders", "Ordination"
+			]
+		},
+		{
+			"clr": "green",
+			"evt": [""]
+		}
+	],
+
+	"hymnBk": [
+		{
+			"pattern": "\\[SPG\\d",
+			"result": "SPG"
+		},
+		{
+			"pattern": "\\[BB|\\[bb",
+			"result": "BB"
+		},
+		{
+			"pattern": "\\[[A-Z]\\d",
+			"result": "Heart"
+		},
+		{
+			"pattern": "^Psalm",
+			"result": "Psalms"
+		},
+		{
+			"pattern": ".*",
+			"result": "Misc"
+		}
+	],
+
+	"audioExt": [
+		"m4a",
+		"mp3"
+	]
+}
