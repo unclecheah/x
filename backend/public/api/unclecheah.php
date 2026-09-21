@@ -3,7 +3,7 @@
 include_once "../../private/api/session.php";
 // include_once "../php/db.php";
 include_once "../../private/api/gcal.php";
-// include_once "../php/files.php";
+include_once "../../private/api/files.php";
 
 class Unclecheah {
 	private static $instance = null;
@@ -21,7 +21,7 @@ class Unclecheah {
 	}
 
 	public function run () {
-		global $gSession, $gGCal;
+		global $gSession, $gGCal, $gFiles;
 
 		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {           //  POST, PUT, PATCH
 			$json = file_get_contents ('php://input');
@@ -43,10 +43,10 @@ class Unclecheah {
 			else if ($data['action'] == 'gcal_update')	echo $gGCal->update ($data);
 			else if ($data['action'] == 'gcal_delete')	echo $gGCal->delete ($data);
 
-			// else if ($data['action'] == 'files_getDetails')		echo $gFiles->getDetails ($data['hymns']);
-			// else if ($data['action'] == 'files_getAllHymns')	echo $gFiles->getAllHymns ();
-			// else if ($data['action'] == 'files_combine')		echo $gFiles->combine ($data['hymns'], $data['evtid']);
-			// else if ($data['action'] == 'files_getCombined')	echo $gFiles->getCombined ($data['evtid'] ?? null);
+			else if ($data['action'] == 'files_getDetails')		echo $gFiles->getDetails ($data['hymns']);
+			else if ($data['action'] == 'files_getAllHymns')	echo $gFiles->getAllHymns ();
+			else if ($data['action'] == 'files_combine')		echo $gFiles->combine ($data['hymns'], $data['evtid']);
+			else if ($data['action'] == 'files_getCombined')	echo $gFiles->getCombined ($data['evtid'] ?? null);
 
 		} else {
 			if      (isset ($_GET['session_destroy']))	echo $gSession->destroy ();
@@ -54,6 +54,11 @@ class Unclecheah {
 			else if (isset ($_GET['session_sessid']))	echo $gSession->sessId ();
 			else if (isset ($_GET['session_getvar']))	echo $gSession->get ($_GET['key']);
 
+			else if (isset ($_GET['files_hymn2bk']))		echo $gFiles->hymn2bk ($_GET['data']);
+			else if (isset ($_GET['files_scoreExist']))		echo $gFiles->scoreExist ($_GET['data']);
+			else if (isset ($_GET['files_recordingExist']))	echo $gFiles->recordingExist ($_GET['data']);
+			else if (isset ($_GET['files_linkExist']))		echo $gFiles->linkExist ($_GET['data']);
+			
 			// else if (isset ($_GET['db_events']))		echo $gDb->getEvents	($_GET['date']);
 			// else if (isset ($_GET['db_event']))			echo $gDb->getEvent		($_GET['eventid']);
 			// else if (isset ($_GET['db_roles']))			echo $gDb->getRoles		($_GET['eventid']);

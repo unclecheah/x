@@ -6,5 +6,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 // import gTestSession from './test/api/testSession.js';
 // gTestSession.run ();
 
-import gTestGCal from './test/api/testGCal.js';
-gTestGCal.run ();
+// import gTestGCal from './test/api/testGCal.js';
+// gTestGCal.run ();
+
+import gTestFiles from './test/api/testFiles.js';
+gTestFiles.run ();

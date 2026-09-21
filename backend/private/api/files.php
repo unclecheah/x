@@ -1,11 +1,11 @@
 <?php
 
+require_once __DIR__ . '/fpdf/fpdf.php';
+require_once __DIR__ . '/fpdi/src/autoload.php';
+use setasign\Fpdi\Fpdi;
+
 const CONFIGFILE = __DIR__ . "/../config/config.json";
 const DATAROOT = __DIR__ . "/../../../data";					//	<-- file path
-const SCORESROOT = DATAROOT . "/scores";
-const RECORDINGSROOT = DATAROOT . "/recordings";
-const COMBINEDROOT = DATAROOT . "/combined";
-
 const DOCROOT = "/data";									//	<-- wrt $DOCUMENT_ROOT
 
 
@@ -52,11 +52,119 @@ class Files {
 	public function scoreExist ($hymn) {
 		$bk = $this->hymn2bk ($hymn);
 
-		// $relpath = "$scoresRoot/$book/$hymn.pdf";
 		if (file_exists (DATAROOT . "/scores/$bk/$hymn.pdf")) return DOCROOT . "/scores/$bk/$hymn.pdf";
 		else return "";
 	}
 
+	public function recordingExist ($hymn) {
+		//	TODO: to handle SATB
+		$bk = $this->hymn2bk ($hymn);
+
+		foreach (self::$config["audioExt"] as $ext) {
+			if (file_exists (DATAROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
+		}
+
+		return "";
+	}
+
+	public function linkExist ($hymn) {
+		$bk = $this->hymn2bk ($hymn);
+		$path = DATAROOT . "/recordings/$bk/$hymn.link";
+
+		if (file_exists ($path)) {
+			$contents = @file_get_contents ($path);
+			if ($contents === false) return "";
+
+			// Remove a UTF-8 byte-order mark, if present.
+			$url = trim (preg_replace ('/^\xEF\xBB\xBF/', '', $contents));
+			if (filter_var ($url, FILTER_VALIDATE_URL) === false) return "";
+
+			$scheme = strtolower (parse_url ($url, PHP_URL_SCHEME) ?? "");
+			if (!in_array ($scheme, ["http", "https"], true)) return "";
+
+			return $url;
+		}
+
+		return "";
+	}
+
+	public function getDetails ($hymns) {
+		/*
+			returns [{
+				hymn:		"Hymn Name",
+				score:		"/data/scores/...pdf",
+				recording:	"/data/recordings/...mp3",
+				link:		"https://youtube.com/..."
+			}]
+		*/
+		$result = array ();
+
+		for ($i = 0; $i < count ($hymns); ++$i) {
+			$score = $this->scoreExist ($hymns[$i]);
+			$recording = $this->recordingExist ($hymns[$i]);
+			$link = $this->linkExist ($hymns[$i]);
+
+			$result[] = array (
+				"hymn"		=> $hymns[$i],
+				"score"		=> $score,
+				"recording"	=> $recording,
+				"link"		=> $link
+			);
+		}
+
+		return json_encode ($result);
+	}
+
+	public function getAllHymns (): string {
+		/*
+			returns ["hymn1", "hymn2", ...]
+		*/
+		$files = new RecursiveIteratorIterator (
+			new RecursiveDirectoryIterator (DATAROOT . "/scores", FilesystemIterator::SKIP_DOTS)
+		);
+
+		$names = [];
+
+		foreach ($files as $file) {
+			if ($file->isFile()) $names[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+		}
+
+		return json_encode ($names);
+	}
+
+	public function combine ($hymns, $evtid) {
+		/*
+			input:
+				$hymns = ['hymn1', 'hymn2', ...]
+				$evtid = 520
+
+			returns {status: "success"}
+		*/
+
+		$pdf = new Fpdi();
+
+		foreach ($hymns as $hymn) {
+			$bk = $this->hymn2bk ($hymn);
+			$file = DATAROOT . "/scores/$bk/$hymn.pdf";
+
+			$pageCount = $pdf->setSourceFile ($file);
+			for ($page = 1; $page <= $pageCount; $page++) {
+				$tpl = $pdf->importPage($page);
+				$size = $pdf->getTemplateSize ($tpl);
+				$pdf->AddPage ($size['orientation'], [$size['width'], $size['height']]);
+				$pdf->useTemplate ($tpl);
+			}
+		}
+
+		$pdf->Output ('F', DATAROOT . "/combined/$evtid.pdf");
+		return json_encode (["status" => "success"]);
+	}
+
+	public function getCombined ($evtid) {
+		$file = DATAROOT . "/combined/$evtid.pdf";
+		if (file_exists ($file)) return $file;
+		else return "";
+	}
 }
 
 $gFiles = Files::getInstance();
