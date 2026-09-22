@@ -9,5 +9,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 // import gTestGCal from './test/api/testGCal.js';
 // gTestGCal.run ();
 
-import gTestFiles from './test/api/testFiles.js';
-gTestFiles.run ();
+// import gTestFiles from './test/api/testFiles.js';
+// gTestFiles.run ();
+
+import gTestDB from './test/api/testDB.js';
+gTestDB.run ();

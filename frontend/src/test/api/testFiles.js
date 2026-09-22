@@ -76,27 +76,6 @@ class TestFiles {
 		this.upd ();
 	}
 
-	// insert = async () => {
-	// 	var data = {};
-	// 	data['action'] = 'gcal_insert';         //  insert, update, delete
-	// 	data['gcalevtid'] = '';
-	// 	data['title'] = 'Test Event';
-	// 	data['timestamp'] = '2026-09-01T09:15';
-	// 	data['note'] = '';
-	// 	data['roles'] = [];
-	// 	data['roles'].push ({role: 'cantor', person: 'carol'});
-	// 	data['roles'].push({ role: 'conductor', person: 'jac' });
-	// 	data['hymns'] = [];
-	// 	data['hymns'].push({hymntype: 'Entrance', book: 'BB', hymn: 'Let Us Go To The Altar [BB315; bb306]'});
-	// 	data['hymns'].push({ hymntype: 'Psalm', book: 'Psalms', hymn: 'Psalm test' });
-	// 	data['updated'] = '2026-08-16T17:00';
-
-	// 	this.#gcalevtid = await gGCal.insert (data);
-	// 	this.upd();
-	// }
-
-
-
 
 
 	run = async () => {

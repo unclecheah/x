@@ -3,9 +3,9 @@
 include_once __DIR__ . "/../config/secret.php";
 include_once __DIR__ . "/gcal.php";
 
-const CONFIGFILE = __DIR__ . "/../config/config.json";
 
 class DB {
+	private static $CONFIGFILE = __DIR__ . "/../config/config.json";
 	private static $instance = null;
 	private static $config = null;
 	private static $pdo = null;
@@ -27,7 +27,7 @@ class DB {
 	}
 
 	public function loadConfig () {
-		$json = file_get_contents (CONFIGFILE);
+		$json = file_get_contents (DB::$CONFIGFILE);
 		if ($json === false) throw new RuntimeException ("Unable to read config");
 
 		self::$config = json_decode ($json, true, 512, JSON_THROW_ON_ERROR);

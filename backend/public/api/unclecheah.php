@@ -1,9 +1,9 @@
 <?php
 // include_once "../php/auth.php";
 include_once "../../private/api/session.php";
-// include_once "../php/db.php";
 include_once "../../private/api/gcal.php";
 include_once "../../private/api/files.php";
+include_once "../../private/api/db.php";
 
 class Unclecheah {
 	private static $instance = null;
@@ -21,7 +21,7 @@ class Unclecheah {
 	}
 
 	public function run () {
-		global $gSession, $gGCal, $gFiles;
+		global $gSession, $gGCal, $gFiles, $gDB;
 
 		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {           //  POST, PUT, PATCH
 			$json = file_get_contents ('php://input');
@@ -35,9 +35,9 @@ class Unclecheah {
 			else if ($data['action'] == 'session_destroy')		echo $gSession->destroy ();
 			else if ($data['action'] == 'session_setvar')		echo $gSession->set ($data['key'], $data['value']);
 
-			// else if ($data['action'] == 'db_insert')	echo $gDb->insert ($data);
-			// else if ($data['action'] == 'db_update')	echo $gDb->update ($data);
-			// else if ($data['action'] == 'db_delete')	echo $gDb->delete ($data);
+			else if ($data['action'] == 'db_insert')	echo $gDB->insert ($data);
+			else if ($data['action'] == 'db_update')	echo $gDB->update ($data);
+			else if ($data['action'] == 'db_delete')	echo $gDB->delete ($data);
 
 			else if ($data['action'] == 'gcal_insert')	echo $gGCal->insert ($data);
 			else if ($data['action'] == 'gcal_update')	echo $gGCal->update ($data);
@@ -59,11 +59,11 @@ class Unclecheah {
 			else if (isset ($_GET['files_recordingExist']))	echo $gFiles->recordingExist ($_GET['data']);
 			else if (isset ($_GET['files_linkExist']))		echo $gFiles->linkExist ($_GET['data']);
 			
-			// else if (isset ($_GET['db_events']))		echo $gDb->getEvents	($_GET['date']);
-			// else if (isset ($_GET['db_event']))			echo $gDb->getEvent		($_GET['eventid']);
-			// else if (isset ($_GET['db_roles']))			echo $gDb->getRoles		($_GET['eventid']);
-			// else if (isset ($_GET['db_hymns']))			echo $gDb->getHymns		($_GET['eventid']);
-			// else if (isset ($_GET['db_gcalid']))		echo $gDb->getGCalEvtId	($_GET['eventid']);
+			else if (isset ($_GET['db_events']))		echo $gDB->getEvents	($_GET['date']);
+			else if (isset ($_GET['db_event']))			echo $gDB->getEvent		($_GET['eventid']);
+			else if (isset ($_GET['db_roles']))			echo $gDB->getRoles		($_GET['eventid']);
+			else if (isset ($_GET['db_hymns']))			echo $gDB->getHymns		($_GET['eventid']);
+			else if (isset ($_GET['db_gcalid']))		echo $gDB->getGCalEvtId	($_GET['eventid']);
 		}
 	}
 }

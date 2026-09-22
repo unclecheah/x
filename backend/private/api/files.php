@@ -4,13 +4,12 @@ require_once __DIR__ . '/fpdf/fpdf.php';
 require_once __DIR__ . '/fpdi/src/autoload.php';
 use setasign\Fpdi\Fpdi;
 
-const CONFIGFILE = __DIR__ . "/../config/config.json";
 const DATAROOT = __DIR__ . "/../../../data";					//	<-- file path
 const DOCROOT = "/data";									//	<-- wrt $DOCUMENT_ROOT
 
 
 class Files {
-	// private static $configfile = __DIR__ . "/../config/config.json";
+	private static $CONFIGFILE = __DIR__ . "/../config/config.json";
 	private static $instance = null;
 	private static $config = null;
 
@@ -27,7 +26,7 @@ class Files {
 	}
 
 	public function loadConfig () {
-		$json = file_get_contents (CONFIGFILE);
+		$json = file_get_contents (Files::$CONFIGFILE);
 		if ($json === false) throw new RuntimeException ("Unable to read config");
 
 		self::$config = json_decode ($json, true, 512, JSON_THROW_ON_ERROR);
