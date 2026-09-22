@@ -35,20 +35,25 @@ function testDB () {
 	// $data['updated'] = '2026-08-16T17:00';
 	// $gDB->insert ($data);
 
+	// $data = [];
+	// $data['action'] = 'db_update';
+	// $data['id'] = 356;
+	// $data['title'] = 'Test Event';
+	// $data['timestamp'] = '2026-09-01T10:30';
+	// $data['note'] = "Wear red top...";
+	// $data['roles'] = [];
+	// $data['roles'][] = ['role' => 'cantor', 'person' => 'carol'];
+	// $data['roles'][] = ['role' => 'conductor', 'person' => 'jac'];
+	// $data['hymns'] = [];
+	// $data['hymns'][] = ['hymntype' => 'Entrance', 'hymn' => 'Let Us Go To The Altar [BB315; bb306]'];
+	// $data['hymns'][] = ['hymntype' => 'POG', 'hymn' => 'POG test'];
+	// $data['updated'] = '2026-08-16T17:00';
+	// $gDB->update ($data);
+
 	$data = [];
-	$data['action'] = 'db_update';
-	$data['id'] = 356;
-	$data['title'] = 'Test Event';
-	$data['timestamp'] = '2026-09-01T10:30';
-	$data['note'] = "Wear red top...";
-	$data['roles'] = [];
-	$data['roles'][] = ['role' => 'cantor', 'person' => 'carol'];
-	$data['roles'][] = ['role' => 'conductor', 'person' => 'jac'];
-	$data['hymns'] = [];
-	$data['hymns'][] = ['hymntype' => 'Entrance', 'hymn' => 'Let Us Go To The Altar [BB315; bb306]'];
-	$data['hymns'][] = ['hymntype' => 'POG', 'hymn' => 'POG test'];
-	$data['updated'] = '2026-08-16T17:00';
-	$gDB->update ($data);
+	$data['action'] = 'db_delete';
+	$data['id'] = 521;
+	$gDB->delete ($data);
 }
 
 testDB ();

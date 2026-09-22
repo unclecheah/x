@@ -318,6 +318,34 @@ class DB {
 		$retVal['gcalevtid'] = $data["gcalevtid"];
 		return json_encode($retVal);
 	}
+
+	public function delete ($data) {
+		/*  input data = {
+				action: 'db_delete',
+				id: 443,
+			}
+
+			returns {id: 443}
+		*/
+		global $gGCal;
+
+		$gCalData = ["gcalevtid" => $this->getGCalEvtId ($data["id"])];                   //  delete gcal
+		$gGCal->delete ($gCalData);
+
+		$q = self::$pdo->prepare ("delete from events where id = :id");              //  delete event
+		$q->bindValue (":id", $data["id"], PDO::PARAM_INT);
+		$q->execute ();
+
+		$q = self::$pdo->prepare ("delete from roles where eventid = :id");          //  delete roles
+		$q->bindValue (":id", $data["id"], PDO::PARAM_INT);
+		$q->execute ();
+
+		$q = self::$pdo->prepare ("delete from hymns where eventid = :id");          //  delete hymns
+		$q->bindValue (":id", $data["id"], PDO::PARAM_INT);
+		$q->execute ();
+
+		return json_encode (["id" => $data["id"]]);
+	}
 }
 
 $gDB = DB::getInstance();
