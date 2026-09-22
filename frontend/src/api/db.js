@@ -89,6 +89,19 @@ class Db {
 		return data;
 	}
 
+	getLitClr = async (event) => {
+		/*
+			eventID = "3rd Sunday of Advent"
+
+			returns "fuchsia"
+		*/
+		var url = `/api/unclecheah.php?db_litClr&event=${event}`;
+
+		const resp = await fetch (url, {credentials: 'include'});
+		var data = await resp.text ();
+		return data;
+	}
+
 	insert = async (data) => {
 		/*
 			input data = {

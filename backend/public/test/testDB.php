@@ -10,6 +10,7 @@ function testDB () {
 	// echo $gDB->getRoles (200);
 	// echo $gDB->getHymns (200);
 	// echo $gDB->getGCalEvtId (351);
+	echo $gDB->getLitClr ("3rd sunday of advent");
 
 	// $roles = [];
 	// $roles[] = ['role' => 'cantor', 'person' => 'carol'];
@@ -50,10 +51,10 @@ function testDB () {
 	// $data['updated'] = '2026-08-16T17:00';
 	// $gDB->update ($data);
 
-	$data = [];
-	$data['action'] = 'db_delete';
-	$data['id'] = 521;
-	$gDB->delete ($data);
+	// $data = [];
+	// $data['action'] = 'db_delete';
+	// $data['id'] = 521;
+	// $gDB->delete ($data);
 }
 
 testDB ();

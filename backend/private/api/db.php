@@ -98,6 +98,18 @@ class DB {
 		return json_encode($event === false ? null : $event);
 	}
 
+	public function getLitClr ($event) {
+		$rules = self::$config['litClr'];
+
+		foreach ($rules as $rule) {
+			foreach ($rule['evt'] as $keyword) {
+				if ($keyword === '' || stripos ($event, $keyword) !== false) return $rule['clr'];
+			}
+		}
+
+		return null;
+	}
+
 	public function getRoles ($eventID) {
 		/*
 			eventID = 523

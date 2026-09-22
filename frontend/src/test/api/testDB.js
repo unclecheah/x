@@ -34,6 +34,11 @@ class TestDB {
 		console.log (gcalid);
 	}
 
+	getLitClr = async () => {
+		const litClr = await gDB.getLitClr ("3rd Sunday of Advent");
+		console.log (litClr);
+	}
+
 	insert = async () => {
 		var data = {};
 		data['action'] = 'db_insert';         //  insert, update, delete
@@ -89,6 +94,7 @@ class TestDB {
 		$('main').append (`<button type="button" id="getRoles" class="btn btn-primary">getRoles</button>`);
 		$('main').append (`<button type="button" id="getHymns" class="btn btn-primary">getHymns</button>`);
 		$('main').append (`<button type="button" id="getGCalId" class="btn btn-primary">getGCalId</button>`);
+		$('main').append (`<button type="button" id="getLitClr" class="btn btn-primary">getLitClr</button>`);
 		$('main').append (`<button type="button" id="insert" class="btn btn-primary">insert</button>`);
 		$('main').append (`<button type="button" id="update" class="btn btn-primary">update</button>`);
 		$('main').append (`<button type="button" id="delete" class="btn btn-primary">delete</button>`);
@@ -98,6 +104,7 @@ class TestDB {
 		$('#getRoles').on ('click', () => this.getRoles ());
 		$('#getHymns').on ('click', () => this.getHymns ());
 		$('#getGCalId').on ('click', () => this.getGCalId ());
+		$('#getLitClr').on ('click', () => this.getLitClr ());
 		$('#insert').on ('click', () => this.insert ());
 		$('#update').on ('click', () => this.update ());
 		$('#delete').on ('click', () => this.delete ());

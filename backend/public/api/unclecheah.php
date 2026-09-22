@@ -64,6 +64,7 @@ class Unclecheah {
 			else if (isset ($_GET['db_roles']))			echo $gDB->getRoles		($_GET['eventid']);
 			else if (isset ($_GET['db_hymns']))			echo $gDB->getHymns		($_GET['eventid']);
 			else if (isset ($_GET['db_gcalid']))		echo $gDB->getGCalEvtId	($_GET['eventid']);
+			else if (isset ($_GET['db_litClr']))		echo $gDB->getLitClr	($_GET['event']);
 		}
 	}
 }
