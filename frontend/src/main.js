@@ -12,5 +12,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 // import gTestFiles from './test/api/testFiles.js';
 // gTestFiles.run ();
 
-import gTestDB from './test/api/testDB.js';
-gTestDB.run ();
+// import gTestDB from './test/api/testDB.js';
+// gTestDB.run ();
+
+import gTestAuth from './test/api/testAuth.js';
+gTestAuth.run ();

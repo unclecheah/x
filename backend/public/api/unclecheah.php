@@ -1,5 +1,6 @@
 <?php
 // include_once "../php/auth.php";
+include_once "../../private/api/auth.php";
 include_once "../../private/api/session.php";
 include_once "../../private/api/gcal.php";
 include_once "../../private/api/files.php";
@@ -21,17 +22,21 @@ class Unclecheah {
 	}
 
 	public function run () {
-		global $gSession, $gGCal, $gFiles, $gDB;
+		global $gSession, $gGCal, $gFiles, $gDB, $gAuth;
 
 		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {           //  POST, PUT, PATCH
 			$json = file_get_contents ('php://input');
 			$data = json_decode ($json, true);                                  //  $data is now json, $data['action'] = 'upd'
 
-			// if 		($data['action'] == 'auth_authenticate')	echo $gAuth->authenticate ($data['username'], $data['password']);
-			// else if ($data['action'] == 'auth_add')				echo $gAuth->add ($data['username'], $data['password'], $data['admin'], $data['changepw']);
-			// else if ($data['action'] == 'auth_changepw')		echo $gAuth->changepw ($data['username'], $data['password']);
+			if 		($data['action'] == 'auth_authenticate')	echo $gAuth->authenticate ($data['username'], $data['password']);
+			else if ($data['action'] == 'auth_add')				echo $gAuth->add ($data);
+			else if ($data['action'] == 'auth_delete')			echo $gAuth->delete ($data['username']);
+			else if ($data['action'] == 'auth_changeStatus')	echo $gAuth->changeStatus ($data['username'], $data['status']);
+			else if ($data['action'] == 'auth_changeRole')		echo $gAuth->changeRole ($data['username'], $data['role']);
+			else if ($data['action'] == 'auth_changeDispName')	echo $gAuth->changeDispName ($data['username'], $data['dispName']);
+			else if ($data['action'] == 'auth_changePassword')	echo $gAuth->changePassword ($data['username'], $data['password']);
 
-			if ($data['action'] == 'session_start')		echo $gSession->start ($data['username']);
+			else if ($data['action'] == 'session_start')		echo $gSession->start ($data['username']);
 			else if ($data['action'] == 'session_destroy')		echo $gSession->destroy ();
 			else if ($data['action'] == 'session_setvar')		echo $gSession->set ($data['key'], $data['value']);
 
@@ -49,7 +54,11 @@ class Unclecheah {
 			else if ($data['action'] == 'files_getCombined')	echo $gFiles->getCombined ($data['evtid'] ?? null);
 
 		} else {
-			if      (isset ($_GET['session_destroy']))	echo $gSession->destroy ();
+			if		(isset ($_GET['auth_getStatus']))	echo $gAuth->getStatus ($_GET['username']);
+			else if	(isset ($_GET['auth_getRole']))		echo $gAuth->getRole ($_GET['username']);
+			else if	(isset ($_GET['auth_getDispName']))	echo $gAuth->getDispName ($_GET['username']);
+
+			else if (isset ($_GET['session_destroy']))	echo $gSession->destroy ();
 			else if (isset ($_GET['session_isactive']))	echo $gSession->isActive ();
 			else if (isset ($_GET['session_sessid']))	echo $gSession->sessId ();
 			else if (isset ($_GET['session_getvar']))	echo $gSession->get ($_GET['key']);
