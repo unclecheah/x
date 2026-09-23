@@ -17,8 +17,14 @@ class TestFiles {
 		$("#combined").html (`combined: ${this.#combined}`);
 	}
 
+	getBgImages = async () => {
+		var images = await gFiles.getBgImages ();
+		console.log (images);
+	}
+
 	hymn2bk = async () => {
 		this.#bk = await gFiles.hymn2bk ("Abide With Me [BB649; bb634]");
+		console.log ("here");
 		this.upd ();
 	}
 
@@ -84,6 +90,7 @@ class TestFiles {
 		$('main').append (`<p id="recording">recording: </p>`);
 		$('main').append (`<p id="link">link: </p>`);
 		$('main').append (`<p id="combined">combined: </p>`);
+		$('main').append (`<button type="button" id="bgImages" class="btn btn-primary">bgImages</button>`);
 		$('main').append (`<button type="button" id="hymn2bk" class="btn btn-primary">hymn2bk</button>`);
 		$('main').append (`<button type="button" id="scoreBtn" class="btn btn-primary">score?</button>`);
 		$('main').append (`<button type="button" id="recordingBtn" class="btn btn-primary">recording?</button>`);
@@ -93,6 +100,7 @@ class TestFiles {
 		$('main').append (`<button type="button" id="combine" class="btn btn-primary">combine</button>`);
 		$('main').append (`<button type="button" id="getCombined" class="btn btn-primary">getCombined</button>`);
 
+		$('#bgImages').on ('click', () => this.getBgImages ());
 		$('#hymn2bk').on ('click', () => this.hymn2bk ());
 		$('#scoreBtn').on ('click', () => this.scoreExist ());
 		$('#recordingBtn').on ('click', () => this.recordingExist ());

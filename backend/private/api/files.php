@@ -4,8 +4,9 @@ require_once __DIR__ . '/fpdf/fpdf.php';
 require_once __DIR__ . '/fpdi/src/autoload.php';
 use setasign\Fpdi\Fpdi;
 
-const DATAROOT = __DIR__ . "/../../../data";					//	<-- file path
-const DOCROOT = "/data";									//	<-- wrt $DOCUMENT_ROOT
+const DATAROOT = __DIR__ . "/../../../data";
+const MUSICROOT = DATAROOT . "/music";					//	<-- file path
+const DOCROOT = "/data/music";									//	<-- wrt $DOCUMENT_ROOT
 
 
 class Files {
@@ -32,6 +33,20 @@ class Files {
 		self::$config = json_decode ($json, true, 512, JSON_THROW_ON_ERROR);
 	}
 
+	public function getBgImages () {
+		$files = new RecursiveIteratorIterator (
+			new RecursiveDirectoryIterator (DATAROOT . "/images/background", FilesystemIterator::SKIP_DOTS)
+		);
+
+		$names = [];
+
+		foreach ($files as $file) {
+			if ($file->isFile()) $names[] = pathinfo($file->getFilename(), PATHINFO_BASENAME);
+		}
+
+		return json_encode ($names);
+	}
+
 	public function hymn2bk ($hymn) {
 		if (!self::$config) $this->loadConfig ();
 
@@ -51,7 +66,7 @@ class Files {
 	public function scoreExist ($hymn) {
 		$bk = $this->hymn2bk ($hymn);
 
-		if (file_exists (DATAROOT . "/scores/$bk/$hymn.pdf")) return DOCROOT . "/scores/$bk/$hymn.pdf";
+		if (file_exists (MUSICROOT . "/scores/$bk/$hymn.pdf")) return DOCROOT . "/scores/$bk/$hymn.pdf";
 		else return "";
 	}
 
@@ -60,7 +75,7 @@ class Files {
 		$bk = $this->hymn2bk ($hymn);
 
 		foreach (self::$config["audioExt"] as $ext) {
-			if (file_exists (DATAROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
+			if (file_exists (MUSICROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
 		}
 
 		return "";
@@ -68,7 +83,7 @@ class Files {
 
 	public function linkExist ($hymn) {
 		$bk = $this->hymn2bk ($hymn);
-		$path = DATAROOT . "/recordings/$bk/$hymn.link";
+		$path = MUSICROOT . "/recordings/$bk/$hymn.link";
 
 		if (file_exists ($path)) {
 			$contents = @file_get_contents ($path);
@@ -119,7 +134,7 @@ class Files {
 			returns ["hymn1", "hymn2", ...]
 		*/
 		$files = new RecursiveIteratorIterator (
-			new RecursiveDirectoryIterator (DATAROOT . "/scores", FilesystemIterator::SKIP_DOTS)
+			new RecursiveDirectoryIterator (MUSICROOT . "/scores", FilesystemIterator::SKIP_DOTS)
 		);
 
 		$names = [];
@@ -144,7 +159,7 @@ class Files {
 
 		foreach ($hymns as $hymn) {
 			$bk = $this->hymn2bk ($hymn);
-			$file = DATAROOT . "/scores/$bk/$hymn.pdf";
+			$file = MUSICROOT . "/scores/$bk/$hymn.pdf";
 
 			$pageCount = $pdf->setSourceFile ($file);
 			for ($page = 1; $page <= $pageCount; $page++) {
@@ -155,12 +170,12 @@ class Files {
 			}
 		}
 
-		$pdf->Output ('F', DATAROOT . "/combined/$evtid.pdf");
+		$pdf->Output ('F', MUSICROOT . "/combined/$evtid.pdf");
 		return json_encode (["status" => "success"]);
 	}
 
 	public function getCombined ($evtid) {
-		$file = DATAROOT . "/combined/$evtid.pdf";
+		$file = MUSICROOT . "/combined/$evtid.pdf";
 		if (file_exists ($file)) return $file;
 		else return "";
 	}

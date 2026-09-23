@@ -1,0 +1,18 @@
+body.has-random-background {
+	min-height: 100vh;
+	min-height: 100dvh;
+	isolation: isolate;
+}
+
+.random-background {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+
+	background-color: #121820;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	pointer-events: none;
+}

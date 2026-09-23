@@ -1,4 +1,12 @@
 class Files {
+	getBgImages = async () => {
+		var url = `/api/unclecheah.php?files_bgImages`;
+
+		const resp = await fetch (url, {credentials: 'include'});
+		var data = await resp.json ();
+		return data;
+	}
+
 	hymn2bk = async (data) => {
 		var url = `/api/unclecheah.php?files_hymn2bk&data=${data}`;
 
