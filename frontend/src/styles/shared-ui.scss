@@ -1,0 +1,58 @@
+.ui-surface {
+	color: var(--ui-text);
+	background: var(--ui-surface);
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius-panel);
+	box-shadow: var(--ui-shadow);
+	font-family: var(--ui-font);
+}
+
+.ui-title {
+	margin: 0 0 10px;
+	color: var(--ui-text);
+	font-size: 1.7rem;
+	font-weight: 500;
+	line-height: 1.2;
+	letter-spacing: -0.025em;
+}
+
+.ui-copy {
+	margin: 0;
+	color: var(--ui-muted);
+	font-size: 0.875rem;
+	line-height: 1.6;
+}
+
+.ui-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 6px;
+	border: 0;
+	border-radius: var(--ui-radius-small);
+	background: transparent;
+	color: var(--ui-accent);
+	font: inherit;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover {
+		color: var(--ui-text);
+		text-decoration: none;
+	}
+}
+
+.ui-link:focus-visible,
+.ui-focus:focus-visible {
+	outline: 2px solid var(--ui-accent);
+	outline-offset: 3px;
+}
+
+.ui-feedback {
+	min-height: 3em;
+	margin: 0;
+	color: var(--ui-error);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}

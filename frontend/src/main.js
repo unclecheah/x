@@ -34,3 +34,12 @@ import gFiles from './api/files.js';
 import Background from './components/background/background.js'
 var images = await gFiles.getBgImages ();
 new Background ({images, directory: 'http://localhost:8081/images/background/'});
+
+
+import "./test/components/testAuth.js";
+// $('html').attr ('data-colour', 'plum');
+
+
+// import ColourTheme from './ui/ColourTheme.js';
+// ColourTheme.restore ();
+// ColourTheme.set ('blue', { remember: true });
