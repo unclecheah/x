@@ -115,8 +115,23 @@
 
 	&__view {
 		position: relative;
+
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+
+		box-sizing: border-box;
 		padding: 4px;
 		overflow: visible;
+
+		> * {
+			grid-area: 1 / 1;
+			align-self: start;
+			min-width: 0;
+		}
+
+		&.is-switching {
+			overflow: hidden;
+		}
 	}
 }
 

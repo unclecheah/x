@@ -1,0 +1,113 @@
+.floating-field {
+	position: relative;
+	min-width: 0;
+	overflow: visible;
+
+	&__input {
+		width: 100%;
+		height: 54px;
+		padding: 14px 15px;
+
+		border: 1px solid var(--ui-border);
+		border-radius: var(--ui-radius-field);
+
+		background-color: var(--ui-surface);
+		color: var(--ui-text);
+
+		font-family: var(--ui-font);
+		font-size: 1rem;
+		line-height: 1.5;
+
+		box-shadow: none;
+
+		transition:
+			border-color var(--ui-duration) var(--ui-easing),
+			box-shadow var(--ui-duration) var(--ui-easing);
+
+		&:focus {
+			background-color: var(--ui-surface);
+			color: var(--ui-text);
+			outline: none;
+		}
+	}
+
+	&__label {
+		position: absolute;
+		top: 50%;
+		left: 10px;
+
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+
+		margin: 0;
+		padding: 0 5px;
+
+		border: 0;
+		background-color: var(--ui-surface);
+		color: var(--ui-muted);
+
+		font-size: 0.9375rem;
+		line-height: 1.4;
+
+		transform: translateY(-50%);
+		transform-origin: left center;
+
+		pointer-events: none;
+
+		transition:
+			top var(--ui-duration) var(--ui-easing),
+			transform var(--ui-duration) var(--ui-easing),
+			color var(--ui-duration) var(--ui-easing);
+
+		.bi {
+			flex-shrink: 0;
+			line-height: 1;
+		}
+	}
+
+	&:focus-within .floating-field__input {
+		border-color: var(--ui-accent);
+		box-shadow: 0 0 0 1px var(--ui-accent);
+	}
+
+	&:focus-within .floating-field__label,
+	&__input:not(:placeholder-shown) + .floating-field__label {
+		top: 0;
+		transform: translateY(-50%) scale(0.8);
+	}
+
+	&:focus-within .floating-field__label {
+		color: var(--ui-accent);
+	}
+
+	&--password .floating-field__input {
+		padding-right: 54px;
+	}
+
+	&__toggle {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+
+		display: grid;
+		place-items: center;
+
+		width: 44px;
+		height: 44px;
+		padding: 0;
+
+		border: 0;
+		border-radius: var(--ui-radius-small);
+
+		background: transparent;
+		color: var(--ui-muted);
+		font-size: 1.125rem;
+
+		cursor: pointer;
+
+		&:hover {
+			color: var(--ui-accent);
+		}
+	}
+}

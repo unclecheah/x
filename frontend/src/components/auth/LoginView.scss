@@ -1,0 +1,47 @@
+.login-view {
+	margin: 0;
+	min-width: 0;
+	overflow: visible;
+
+	&__fields {
+		margin-top: 24px;
+	}
+
+	&__options {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px 12px;
+
+		margin-top: 4px;
+	}
+
+	&__forgot {
+		margin-left: auto;
+	}
+
+	&__feedback {
+		margin: 12px 0;
+	}
+
+	&__submit {
+		width: 100%;
+	}
+
+	&__footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 4px 6px;
+
+		margin-top: 16px;
+
+		color: var(--ui-muted);
+		font-size: 0.8125rem;
+	}
+
+	&__options .ui-link {
+		font-size: 0.8125rem;
+	}
+}

@@ -56,3 +56,66 @@
 	font-size: 0.8125rem;
 	line-height: 1.5;
 }
+
+.ui-feedback--success {
+	color: var(--ui-accent);
+}
+
+.ui-field-stack {
+	display: grid;
+	gap: 24px;
+	padding-block: 12px;
+}
+
+.ui-button {
+	--bs-btn-color: var(--ui-text);
+	--bs-btn-bg: var(--ui-accent-soft);
+	--bs-btn-border-color: var(--ui-accent);
+
+	--bs-btn-hover-color: var(--ui-text);
+	--bs-btn-hover-bg: color-mix(
+		in srgb,
+		var(--ui-accent) 20%,
+		var(--ui-surface)
+	);
+	--bs-btn-hover-border-color: var(--ui-accent);
+
+	--bs-btn-active-color: var(--ui-text);
+	--bs-btn-active-bg: var(--bs-btn-hover-bg);
+	--bs-btn-active-border-color: var(--ui-accent);
+
+	--bs-btn-disabled-color: var(--ui-muted);
+	--bs-btn-disabled-bg: var(--ui-accent-soft);
+	--bs-btn-disabled-border-color: var(--ui-border);
+
+	--bs-btn-border-radius: var(--ui-radius-field);
+	--bs-btn-padding-x: 18px;
+	--bs-btn-padding-y: 12px;
+	--bs-btn-focus-box-shadow: none;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+}
+
+.ui-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 4px;
+
+	color: var(--ui-muted);
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	input {
+		flex-shrink: 0;
+		width: 16px;
+		height: 16px;
+		margin: 0;
+
+		accent-color: var(--ui-accent);
+		cursor: pointer;
+	}
+}
