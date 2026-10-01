@@ -126,6 +126,7 @@ class Db {
 				gcalevtid:	"q7..."
 			}
 		*/
+		data['action'] = 'db_insert';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -165,6 +166,8 @@ class Db {
 				gcalevtid:	"q7..."
 			}
 		*/
+
+		data['action'] = 'db_update';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'PATCH',
@@ -187,6 +190,8 @@ class Db {
 
 			returns {id: 443}
 		*/
+
+		data['action'] = 'db_delete';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'DELETE',

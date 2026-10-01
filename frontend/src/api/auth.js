@@ -24,6 +24,7 @@ class Auth {
 	}
 
 	changeStatus = async (data) => {
+		data['action'] = 'auth_changeStatus';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -37,6 +38,7 @@ class Auth {
 	}
 
 	changeRole = async (data) => {
+		data['action'] = 'auth_changeRole';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -50,6 +52,7 @@ class Auth {
 	}
 
 	changeDispName = async (data) => {
+		data['action'] = 'auth_changeDispName';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -63,6 +66,7 @@ class Auth {
 	}
 
 	changePassword = async (data) => {
+		data['action'] = 'auth_changePassword';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -91,6 +95,7 @@ class Auth {
 	}
 
 	add = async (data) => {
+		data['action'] = 'auth_add';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -105,6 +110,7 @@ class Auth {
 	}
 
 	delete = async (data) => {
+		data['action'] = 'auth_delete';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',

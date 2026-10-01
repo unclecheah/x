@@ -11,10 +11,10 @@ class Footer {
 		this.isMounted = false;
 	}
 
-	mount() {
-		if (this.isMounted) return this;
+	mount(target = document.body) {
+		// if (this.isMounted) return this;
 
-		this.$element.appendTo(document.body);
+		this.$element.appendTo(target);
 		this.isMounted = true;
 
 		return this;

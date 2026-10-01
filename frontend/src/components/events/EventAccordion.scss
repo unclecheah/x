@@ -1,0 +1,141 @@
+.event-accordion {
+	display: grid;
+	gap: 12px;
+
+	font-family: var(--ui-font);
+
+	&__item {
+		min-width: 0;
+		overflow: hidden;
+
+		background: color-mix(
+			in srgb,
+			var(--ui-surface) 65%,
+			transparent
+		);
+
+		border: 1px solid var(--ui-border);
+		border-radius: var(--ui-radius-panel);
+	}
+
+	&__heading {
+		margin: 0;
+		font: inherit;
+	}
+
+	&__header {
+		display: flex;
+		align-items: center;
+		gap: 18px;
+
+		width: 100%;
+		min-height: 88px;
+		padding: 18px 22px;
+
+		border: 0;
+		border-left: 6px solid var(--event-colour);
+
+		background: transparent;
+		color: var(--ui-text);
+
+		font: inherit;
+		text-align: left;
+
+		cursor: pointer;
+
+		transition:
+			background-color var(--ui-duration) var(--ui-easing);
+
+		&:hover {
+			background-color: var(--ui-accent-soft);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--ui-accent);
+			outline-offset: -4px;
+		}
+	}
+
+	&__icon {
+		flex-shrink: 0;
+
+		color: var(--ui-accent);
+		font-size: 1.4rem;
+		line-height: 1;
+	}
+
+	&__header-text {
+		display: grid;
+		gap: 5px;
+
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		line-height: 1.35;
+
+		overflow-wrap: anywhere;
+	}
+
+	&__timestamp {
+		color: var(--ui-muted);
+		font-size: 0.875rem;
+		line-height: 1.4;
+	}
+
+	&__chevron {
+		flex-shrink: 0;
+
+		color: var(--ui-accent);
+		font-size: 1rem;
+		line-height: 1;
+
+		transition:
+			transform var(--ui-duration) var(--ui-easing);
+	}
+
+	&__header[aria-expanded='true'] &__chevron {
+		transform: rotate(180deg);
+	}
+
+	&__body {
+		min-height: 100px;
+		padding: 20px 22px;
+
+		border-top: 1px solid var(--ui-border);
+	}
+
+	> &__item > .collapsing {
+		transition:
+			height var(--ui-duration) var(--ui-easing);
+	}
+}
+
+@media (max-width: 575.98px) {
+	.event-accordion {
+		&__header {
+			gap: 12px;
+			min-height: 80px;
+			padding: 16px 14px;
+		}
+
+		&__icon {
+			display: none;
+		}
+
+		&__title {
+			font-size: 1.0625rem;
+		}
+
+		&__timestamp {
+			font-size: 0.8125rem;
+		}
+
+		&__body {
+			padding: 16px;
+		}
+	}
+}

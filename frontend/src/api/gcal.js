@@ -1,6 +1,8 @@
 class GCal {
 	insert = async (data) => {
 		//  returns new gcal id (text)
+
+		data['action'] = 'gcal_insert';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -17,6 +19,8 @@ class GCal {
 
 	update = async (data) => {
 		//  returns updated gcal id (text)
+
+		data['action'] = 'gcal_update';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'PATCH',
@@ -33,6 +37,8 @@ class GCal {
 
 	delete = async (data) => {
 		//  returns deleted gcal id (text)
+
+		data['action'] = 'gcal_delete';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'PATCH',

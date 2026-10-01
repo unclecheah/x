@@ -2,6 +2,7 @@ class Session {
 	start = async (data) => {
 		//  returns 1 if success, 0 if fail
 
+		data['action'] = 'session_start';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -55,6 +56,7 @@ class Session {
 	setvar = async (data) => {
 		//  returns 1 if success, 0 if fail
 
+		data['action'] = 'session_setvar';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -65,7 +67,6 @@ class Session {
 
 		var resp = await fetch (url, opt);
 		var output = await resp.text ();
-		console.log (output);
 		return output;
 	}
 
@@ -74,7 +75,6 @@ class Session {
 
 		const resp = await fetch (url, {credentials: 'include'});
 		var data = await resp.json ();
-		console.log (data);
 		return data;
 	}
 }

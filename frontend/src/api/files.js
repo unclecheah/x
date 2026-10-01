@@ -40,6 +40,7 @@ class Files {
 	}
 
 	getDetails = async (data) => {
+		data['action'] = 'files_getDetails';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -54,6 +55,7 @@ class Files {
 	}
 
 	getAllHymns = async (data) => {
+		data['action'] = 'files_getAllHymns';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -68,6 +70,7 @@ class Files {
 	}
 
 	combine = async (data) => {
+		data['action'] = 'files_combine';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',
@@ -82,6 +85,7 @@ class Files {
 	}
 
 	getCombined = async (data) => {
+		data['action'] = 'files_getCombined';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',

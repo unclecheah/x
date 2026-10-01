@@ -147,7 +147,9 @@ $(async () => {
 
 		try {
 			await auth.logout();
-		} catch {
+		} catch (error) {
+			console.error('[Auth] Logout failed:', error);
+
 			$status.text('Unable to log out. Please try again.');
 		} finally {
 			$logoutButton.prop('disabled', false);
