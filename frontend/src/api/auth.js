@@ -76,6 +76,7 @@ class Auth {
 	}
 
 	authenticate = async (data) => {
+		data['action'] = 'auth_authenticate';
 		var url = '/api/unclecheah.php';
 		var opt = {
 			method: 'POST',

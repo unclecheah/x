@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../../styles/theme.scss';
 import '../../styles/shared-ui.scss';
 
+/*
 import AuthModal from '../../components/auth/AuthModal.js';
 import FloatingField from '../../components/ui/FloatingField.js';
 import LoginView from '../../components/auth/LoginView.js';
@@ -110,4 +111,53 @@ $(async () => {
 	});
 
 	$changePasswordButton.appendTo(document.body);
+});
+*/
+
+
+import AuthComponent from '../../components/auth';
+import gAuth from '../../api/auth.js';
+import gSession from '../../api/session.js';
+import gCubeOverlay from '../../components/cubeOverlay/cubeOverlay.js';
+
+
+$(async () => {
+	const auth = new AuthComponent({
+		churchName: 'Church community',
+
+		defaultUsername: '',
+		showRememberMe: true,
+		showForgotPassword: true,
+		showSignup: true
+	});
+
+	const $status = $('<p>', { class: 'ui-feedback m-3', role: 'alert' }).appendTo(document.body);
+	const $logoutButton = $('<button>', { type: 'button', class: 'btn ui-button ui-focus m-3', text: 'Log out' })
+		.prop('hidden', true)
+		.appendTo(document.body);
+
+	auth.on('auth:session-changed', (event, active) => {
+		$logoutButton.prop('hidden', !active);
+		$status.text('');
+	});
+
+	$logoutButton.on('click', async () => {
+		$logoutButton.prop('disabled', true);
+		$status.text('');
+
+		try {
+			await auth.logout();
+		} catch {
+			$status.text('Unable to log out. Please try again.');
+		} finally {
+			$logoutButton.prop('disabled', false);
+		}
+	});
+
+	try {
+		await auth.initialise({ auth: gAuth, session: gSession, overlay: gCubeOverlay });
+	} catch (error) {
+		console.error('[AuthComponent] Initialisation failed:', error);
+		$status.text('Unable to initialise authentication. See the browser console.');
+	}
 });

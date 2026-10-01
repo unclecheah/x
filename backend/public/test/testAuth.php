@@ -20,11 +20,11 @@ function testAuth () {
 	// $gAuth->changeStatus ("carol", "pending");
 	// $gAuth->changeRole ("carol", "admin");
 	// $gAuth->changeDispName ("carol", "Carol Quek");
-	// $gAuth->changePassword ("carol", "quek");
-	// echo $gAuth->authenticate ("carol", "quek");
+	// $gAuth->changePassword ("andrew", "andrew");
+	echo $gAuth->authenticate ("andrew", "andrew");
 	// echo $gAuth->getStatus ("carol");
 	// echo $gAuth->getRole ("carol");
-	echo $gAuth->getDispName ("carol");
+	// echo $gAuth->getDispName ("carol");
 	// echo $gAuth->delete ("carol");
 }
 
