@@ -59,6 +59,10 @@ export default class EventForm {
 		this.$body = this.$element.find('.event-form__body');
 		this.$cancel = this.$element.find('.event-form__cancel');
 		this.$submit = this.$element.find('.event-form__submit');
+		this.isSaving = false;
+
+		this.$feedback = $('<p>', { class: 'ui-feedback event-form__feedback', role: 'alert' });
+		this.$element.find('.event-form__footer').prepend(this.$feedback);
 
 		// Keep the modal outside the main screen's translucent frame.
 		this.$element.appendTo(document.body);
@@ -75,13 +79,13 @@ export default class EventForm {
 			title: new FloatingField({ name: 'title', label: 'Title', icon: 'bi-calendar-event', required: true }),
 			timestamp: new FloatingField({ name: 'timestamp', label: 'Date and time', type: 'datetime-local', icon: 'bi-clock', required: true }),
 			note: new FloatingField({ name: 'note', label: 'Note', type: 'textarea', icon: 'bi-card-text' }),
-			gcalevtid: new FloatingField({ name: 'gcalevtid', label: 'Google Calendar ID', icon: 'bi-lock' })
+			gcalid: new FloatingField({ name: 'gcalid', label: 'Google Calendar ID', icon: 'bi-lock' })
 		};
 
 		// Accept seconds when they are present in an existing timestamp.
 		this.fields.timestamp.$input.attr('step', '1');
-		this.fields.gcalevtid.$input.prop('readOnly', true);
-		this.fields.gcalevtid.$element.prop('hidden', true);
+		this.fields.gcalid.$input.prop('readOnly', true);
+		this.fields.gcalid.$element.prop('hidden', true);
 
 		const headingId = `${this.id}-details-title`;
 		const $section = $('<section>', { class: 'event-form__section', 'aria-labelledby': headingId });
@@ -92,7 +96,7 @@ export default class EventForm {
 		);
 
 		const $fields = $('<div>', { class: 'event-form__details-fields' }).append(
-			$firstRow, this.fields.note.$element, this.fields.gcalevtid.$element
+			$firstRow, this.fields.note.$element, this.fields.gcalid.$element
 		);
 
 		this.$body.append($section.append($heading, $fields));
@@ -364,6 +368,8 @@ export default class EventForm {
 				hymns: this.getHymns()
 			}]);
 		});
+
+		this.$element[0].addEventListener('hide.bs.modal', (event) => { if (this.isSaving) event.preventDefault(); });
 	}
 
 	show({ event = null, date = '' } = {}) {
@@ -371,6 +377,7 @@ export default class EventForm {
 		this.event = event === null ? null : structuredClone(event);
 		this.date = date;
 
+		this.clearError ();
 		this.$title.text(this.mode === 'add' ? 'Add event' : 'Edit event');
 		this.populateDetails();
 		this.populateRoles();
@@ -385,7 +392,7 @@ export default class EventForm {
 			title: this.fields.title.value.trim(),
 			timestamp: this.fields.timestamp.value,
 			note: this.fields.note.value,
-			gcalevtid: this.event?.gcalevtid ?? ''
+			gcalid: this.event?.gcalid ?? ''
 		};
 	}
 
@@ -394,13 +401,13 @@ export default class EventForm {
 
 		this.fields.title.value = event?.title ?? '';
 		this.fields.note.value = event?.note ?? '';
-		this.fields.gcalevtid.value = event?.gcalevtid ?? '';
+		this.fields.gcalid.value = event?.gcalid ?? '';
 
 		const timestamp = this.mode === 'edit' ? event.timestamp : (this.date ? `${this.date}T00:00` : '');
 		this.fields.timestamp.value = this.toDateTimeInput(timestamp);
 
-		const hasCalendarId = String(this.fields.gcalevtid.value).trim() !== '';
-		this.fields.gcalevtid.$element.prop('hidden', !hasCalendarId);
+		const hasCalendarId = String(this.fields.gcalid.value).trim() !== '';
+		this.fields.gcalid.$element.prop('hidden', !hasCalendarId);
 	}
 
 	updateRoleState() {
@@ -520,6 +527,24 @@ export default class EventForm {
 
 	setHymnOptionsStatus(message = '', isError = false) {
 		this.$hymnOptionsStatus.text(message).toggleClass('event-form__suggestions-status--error', isError);
+		this.modal.handleUpdate();
+	}
+
+	setSaving(busy) {
+		this.isSaving = busy === true;
+
+		this.$form.find('input, textarea, select, button').prop('disabled', this.isSaving);
+		this.$submit.text(this.isSaving ? 'Saving…' : 'Submit');
+		this.roleSortable.option('disabled', this.isSaving);
+		this.hymnSortable.option('disabled', this.isSaving);
+	}
+
+	clearError() {
+		this.$feedback.text('');
+	}
+
+	showError(message) {
+		this.$feedback.text(message);
 		this.modal.handleUpdate();
 	}
 

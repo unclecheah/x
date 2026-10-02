@@ -139,6 +139,12 @@ export default class MainScreen {
 		return this.$date.val();
 	}
 
+	setDate(date) {
+		this.$date.val(date);
+
+		return this;
+	}
+
 	setUsername(username) {
 		this.$username.text(username).attr('title', username);
 	}

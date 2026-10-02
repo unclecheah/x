@@ -19,8 +19,27 @@ export default class AppController {
 		this.eventLoadRevision = 0;
 		this.pendingEventLoads = 0;
 		this.eventFormRevision = 0;
+		this.isSavingEvent = false;
 
 		this.$status = $('<p>', { class: 'ui-feedback m-3', role: 'alert', hidden: true });
+	}
+
+	static localTimestamp() {
+		const now = new Date();
+		const pad = (value) => String(value).padStart(2, '0');
+
+		const date = [
+			now.getFullYear(),
+			pad(now.getMonth() + 1),
+			pad(now.getDate())
+		].join('-');
+
+		const time = [
+			pad(now.getHours()),
+			pad(now.getMinutes())
+		].join(':');
+
+		return `${date}T${time}`;
 	}
 
 	async start() {
@@ -50,20 +69,28 @@ export default class AppController {
 		this.eventAccordion.$element.on('event:combine-hymns event:delete', (event, { eventId }) => {
 			console.log('[Event action]', event.type, eventId);
 		});
+		// this.eventForm.$element.on('event-form:submit', (event, data) => {
+		// 	console.log('[Event form submit]', {
+		// 		mode: data.mode,
+		// 		eventId: data.event?.id ?? null,
+		// 		date: data.date,
+		// 		details: data.details,
+		// 		roles: data.roles,
+		// 		hymns: data.hymns
+		// 	});
+		// });
 		this.eventForm.$element.on('event-form:submit', (event, data) => {
-			console.log('[Event form submit]', {
-				mode: data.mode,
-				eventId: data.event?.id ?? null,
-				date: data.date,
-				details: data.details,
-				roles: data.roles,
-				hymns: data.hymns
-			});
+			if (data.mode === 'add') {
+				void this.insertEvent(data);
+				return;
+			}
+
+			this.eventForm.showError('Saving changes to existing events is not connected yet.');
 		});
 	}
 
 	async openEventForm(event = null) {
-		if (!this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin) return;
 
 		const revision = ++this.eventFormRevision;
 		const sessionRevision = this.sessionRevision;
@@ -95,6 +122,7 @@ export default class AppController {
 	async handleSessionChanged(active) {
 		const revision = ++this.sessionRevision;
 		this.isAuthenticated = active === true;
+		this.eventForm.setSaving (false);
 		this.eventForm.hide ();
 
 		// Invalidate requests belonging to the previous session state.
@@ -209,6 +237,60 @@ export default class AppController {
 		} finally {
 			this.isLoggingOut = false;
 			this.mainScreen.setLoggingOut(false);
+		}
+	}
+
+	async insertEvent({ details, roles, hymns }) {
+		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+
+		this.eventForm.clearError();
+
+		if (!details.title || !details.timestamp) {
+			this.eventForm.showError('Please enter the event title and date/time.');
+			return;
+		}
+
+		const sessionRevision = this.sessionRevision;
+
+		const isCurrentSession = () =>
+			sessionRevision === this.sessionRevision &&
+			this.isAuthenticated;
+
+		const data = {
+			gcalevtid: '',
+			title: details.title,
+			timestamp: details.timestamp,
+			note: details.note,
+			roles,
+			hymns,
+			updated: AppController.localTimestamp()
+		};
+
+		this.isSavingEvent = true;
+		this.eventForm.setSaving(true);
+
+		try {
+			const result = await this.services.db.insert(data);
+
+			if (result === false) throw new Error('The insert operation returned false.');
+			if (!isCurrentSession()) return;
+
+			this.eventForm.setSaving(false);
+			this.eventForm.hide();
+
+			// Show the date on which the new event was created.
+			this.mainScreen.setDate(data.timestamp.slice(0, 10));
+
+			// Reload through the existing event/media enrichment pipeline.
+			await this.loadEvents();
+
+		} catch (error) {
+			console.error('[AppController] Unable to insert event.', error);
+
+			if (isCurrentSession()) this.eventForm.showError('Unable to save the event. Please check the error and try again.');
+		} finally {
+			this.isSavingEvent = false;
+			if (isCurrentSession()) this.eventForm.setSaving(false);
 		}
 	}
 
