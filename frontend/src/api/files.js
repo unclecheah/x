@@ -39,6 +39,14 @@ class Files {
 		return data;
 	}
 
+	getHymnTypes = async () => {
+		var url = `/api/unclecheah.php?files_getHymnTypes`;
+
+		const resp = await fetch (url, {credentials: 'include'});
+		var data = await resp.json ();
+		return data;
+	}
+
 	getDetails = async (data) => {
 		data['action'] = 'files_getDetails';
 		var url = '/api/unclecheah.php';
@@ -54,7 +62,8 @@ class Files {
 		return output;
 	}
 
-	getAllHymns = async (data) => {
+	getAllHymns = async () => {
+		var data = {};
 		data['action'] = 'files_getAllHymns';
 		var url = '/api/unclecheah.php';
 		var opt = {

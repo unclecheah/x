@@ -47,6 +47,11 @@ class Files {
 		return json_encode ($names);
 	}
 
+	public function getHymnTypes () {
+		if (!self::$config) $this->loadConfig ();
+		return json_encode(self::$config['hymnTypes']);
+	}
+
 	public function hymn2bk ($hymn) {
 		if (!self::$config) $this->loadConfig ();
 

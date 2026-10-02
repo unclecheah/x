@@ -4,8 +4,9 @@ include_once "../../private/api/files.php";
 function testFiles () {
 	global $gFiles;
 
-	$gFiles->loadConfig ();
-	echo $gFiles->getBgImages ();
+	// $gFiles->loadConfig ();
+	// echo $gFiles->getBgImages ();
+	echo $gFiles->getHymnTypes ();
 	// echo $gFiles->hymn2Bk("Psalm [SPG123]");
 	// echo $gFiles->scoreExist ("A Call To Blessing [BB599]");
 	// echo $gFiles->recordingExist ("Psalm 040 - Here I Am");

@@ -63,6 +63,7 @@ class Unclecheah {
 			else if (isset ($_GET['session_sessid']))	echo $gSession->sessId ();
 			else if (isset ($_GET['session_getvar']))	echo $gSession->get ($_GET['key']);
 
+			else if (isset ($_GET['files_getHymnTypes']))	echo $gFiles->getHymnTypes ();
 			else if (isset ($_GET['files_bgImages']))		echo $gFiles->getBgImages ();
 			else if (isset ($_GET['files_hymn2bk']))		echo $gFiles->hymn2bk ($_GET['data']);
 			else if (isset ($_GET['files_scoreExist']))		echo $gFiles->scoreExist ($_GET['data']);

@@ -66,7 +66,8 @@ export default class EventForm {
 
 		this.createDetails ();
 		this.createRoles ();
-		this.bindEvents();
+		this.createHymns ();
+		this.bindEvents ();
 	}
 
 	createDetails() {
@@ -148,6 +149,67 @@ export default class EventForm {
 		});
 	}
 
+	createHymns() {
+		const headingId = `${this.id}-hymns-title`;
+		const helpId = `${this.id}-hymns-help`;
+
+		const $section = $('<section>', { class: 'event-form__section', 'aria-labelledby': headingId });
+		const $heading = $('<h3>', { id: headingId, class: 'event-form__section-title', text: 'Hymns' });
+
+		this.$addHymn = $('<button>', { type: 'button', class: 'btn ui-button ui-focus event-form__add-row', text: 'Add hymn' }).prepend(
+			$('<i>', { class: 'bi bi-plus-lg', 'aria-hidden': 'true' })
+		);
+
+		const $header = $('<div>', { class: 'event-form__section-head' }).append($heading, this.$addHymn);
+		const $help = $('<p>', {
+			id: helpId,
+			class: 'ui-copy',
+			text: 'Choose a suggestion or type your own value. Drag the grip to reorder, or focus it and use the up/down arrow keys.'
+		});
+
+		this.$hymnOptionsStatus = $('<p>', { class: 'ui-copy event-form__suggestions-status', role: 'status', 'aria-live': 'polite' });
+		this.$hymns = $('<div>', { class: 'event-form__hymn-list', role: 'list', 'aria-labelledby': headingId });
+		this.$hymnsEmpty = $('<p>', { class: 'ui-copy event-form__hymns-empty', text: 'No hymns added yet.' });
+		this.$hymnStatus = $('<div>', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' });
+
+		// One shared suggestion list per field type, for all hymn rows.
+		this.$hymnTypeOptions = $('<datalist>', { id: `${this.id}-hymn-types` });
+		this.$hymnOptions = $('<datalist>', { id: `${this.id}-hymn-options` });
+
+		$section.append(
+			$header,
+			$help,
+			this.$hymnOptionsStatus,
+			this.$hymns,
+			this.$hymnsEmpty,
+			this.$hymnStatus,
+			this.$hymnTypeOptions,
+			this.$hymnOptions
+		);
+
+		this.$body.append($section);
+		this.$addHymn.on('click.eventForm', () => {
+			this.addHymn({}, { focus: true });
+			this.modal.handleUpdate();
+		});
+
+		this.hymnSortable = new Sortable(this.$hymns[0], {
+			draggable: '.event-form__hymn-row',
+			handle: '.event-form__hymn-handle',
+			direction: 'vertical',
+			animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150,
+			ghostClass: 'event-form__hymn-row--ghost',
+			delay: 150,
+			delayOnTouchOnly: true,
+			touchStartThreshold: 4,
+
+			onEnd: ({ item, oldIndex, newIndex }) => {
+				this.updateHymnState();
+				if (oldIndex !== newIndex) this.announceHymnPosition($(item));
+			}
+		});
+	}
+
 	addRole(data = {}, { focus = false } = {}) {
 		const role = new FloatingField({ name: 'role', label: 'Role', icon: 'bi-person-badge',
 			value: data.role ?? '', required: true
@@ -212,6 +274,81 @@ export default class EventForm {
 		if (focus) role.focus();
 	}
 
+	addHymn(data = {}, { focus = false } = {}) {
+		const hymntype = new FloatingField({
+			name: 'hymntype', label: 'Hymn type', icon: 'bi-tag',
+			value: data.hymntype ?? '', required: true
+		});
+
+		const hymn = new FloatingField({
+			name: 'hymn', label: 'Hymn', icon: 'bi-music-note-beamed',
+			value: data.hymn ?? '', required: true
+		});
+
+		hymntype.$element.addClass('event-form__hymn-type');
+		hymn.$element.addClass('event-form__hymn-name');
+		hymntype.$input.attr('list', this.$hymnTypeOptions.attr('id'));
+		hymn.$input.attr('list', this.$hymnOptions.attr('id'));
+
+		const $row = $('<div>', { class: 'event-form__hymn-row', role: 'listitem' }).data('fields', { hymntype, hymn });
+
+		const $handle = $('<button>', {
+			type: 'button', class: 'event-form__row-icon event-form__hymn-handle ui-focus',
+			'aria-label': 'Reorder hymn', 'aria-describedby': `${this.id}-hymns-help`,
+			title: 'Drag to reorder, or use the up/down arrow keys'
+		}).append(
+			$('<i>', { class: 'bi bi-grip-vertical', 'aria-hidden': 'true' })
+		);
+
+		const $remove = $('<button>', {
+			type: 'button', class: 'event-form__row-icon event-form__hymn-remove ui-focus',
+			'aria-label': 'Remove hymn',
+			title: 'Remove hymn'
+		}).append(
+			$('<i>', { class: 'bi bi-trash', 'aria-hidden': 'true' })
+		);
+
+		$handle.on('keydown.eventForm', (event) => {
+			if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+
+			event.preventDefault();
+			event.stopPropagation();
+			const movingUp = event.key === 'ArrowUp';
+			const $neighbour = movingUp ? $row.prev('.event-form__hymn-row') : $row.next('.event-form__hymn-row');
+
+			if (!$neighbour.length) return;
+
+			if (movingUp) $row.insertBefore($neighbour);
+			else $row.insertAfter($neighbour);
+
+			$handle[0].focus();
+			this.updateHymnState();
+			this.announceHymnPosition($row);
+		});
+
+		$remove.on('click.eventForm', () => {
+			const $next = $row.next('.event-form__hymn-row');
+			const $previous = $row.prev('.event-form__hymn-row');
+			const $focusRow = $next.length ? $next : $previous;
+
+			$row.remove();
+
+			this.updateHymnState();
+			this.$hymnStatus.text('Hymn removed.');
+			this.modal.handleUpdate();
+
+			if ($focusRow.length) $focusRow.find('.event-form__hymn-handle')[0].focus();
+			else this.$addHymn[0].focus();
+		});
+
+		$row.append($handle, hymntype.$element, hymn.$element, $remove);
+
+		this.$hymns.append($row);
+		this.updateHymnState();
+
+		if (focus) hymntype.focus();
+	}
+
 	bindEvents() {
 		this.$cancel.on('click.eventForm', () => { this.hide(); });
 
@@ -223,7 +360,8 @@ export default class EventForm {
 				event: this.event,
 				date: this.date,
 				details: this.getDetails(),
-				roles: this.getRoles()
+				roles: this.getRoles(),
+				hymns: this.getHymns()
 			}]);
 		});
 	}
@@ -236,6 +374,7 @@ export default class EventForm {
 		this.$title.text(this.mode === 'add' ? 'Add event' : 'Edit event');
 		this.populateDetails();
 		this.populateRoles();
+		this.populateHymns();
 		this.modal.show();
 
 		return this;
@@ -275,6 +414,47 @@ export default class EventForm {
 			$row.find('.event-form__role-handle').attr('aria-label', `Reorder role ${number}`);
 			$row.find('.event-form__role-remove').attr('aria-label', `Remove role ${number}`);
 		});
+	}
+
+	updateHymnState() {
+		const $rows = this.$hymns.children('.event-form__hymn-row');
+		this.$hymnsEmpty.prop('hidden', $rows.length > 0);
+
+		$rows.each((index, element) => {
+			const $row = $(element);
+			const number = index + 1;
+
+			$row.find('.event-form__hymn-handle').attr('aria-label', `Reorder hymn ${number}`);
+			$row.find('.event-form__hymn-remove').attr('aria-label', `Remove hymn ${number}`);
+		});
+	}
+
+	announceHymnPosition($row) {
+		const $rows = this.$hymns.children('.event-form__hymn-row');
+		const { hymn } = $row.data('fields');
+		const name = hymn.value.trim() || 'Hymn';
+		const position = $rows.index($row) + 1;
+
+		this.$hymnStatus.text(`${name} moved to position ${position} of ${$rows.length}.`);
+	}
+
+	populateHymns() {
+		this.$hymns.empty();
+		this.$hymnStatus.text('');
+
+		const hymns = this.event?.hymns ?? [];
+		hymns.forEach((hymn) => { this.addHymn(hymn); });
+		this.updateHymnState();
+	}
+
+	getHymns() {
+		return this.$hymns
+			.children('.event-form__hymn-row')
+			.toArray()
+			.map((element) => {
+				const { hymntype, hymn } = $(element).data('fields');
+				return { hymntype: hymntype.value.trim(), hymn: hymn.value.trim() };
+			});
 	}
 
 	announceRolePosition($row) {
@@ -319,6 +499,28 @@ export default class EventForm {
 		}
 
 		return `${match[1]}T${match[2]}${match[3] ?? ''}`;
+	}
+
+	setHymnOptions(types, hymns) {
+		const normalise = (values, label) => {
+			if (!Array.isArray(values) || !values.every((value) => typeof value === 'string')) {
+				throw new TypeError(`${label} must be an array of strings.`);
+			}
+
+			return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+		};
+
+		// Validate both lists before changing either one.
+		const typeValues = normalise(types, 'Hymn types');
+		const hymnValues = normalise(hymns, 'Hymns');
+
+		this.$hymnTypeOptions.empty().append(typeValues.map((value) => $('<option>', { value })[0]));
+		this.$hymnOptions.empty().append(hymnValues.map((value) => $('<option>', { value })[0]));
+	}
+
+	setHymnOptionsStatus(message = '', isError = false) {
+		this.$hymnOptionsStatus.text(message).toggleClass('event-form__suggestions-status--error', isError);
+		this.modal.handleUpdate();
 	}
 
 	hide() {

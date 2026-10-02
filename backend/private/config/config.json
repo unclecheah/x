@@ -61,5 +61,14 @@
 	"audioExt": [
 		"m4a",
 		"mp3"
+	],
+
+	"hymnTypes": [
+		"Entrance",
+		"Psalm",
+		"POG",
+		"Communion",
+		"Thanksgiving",
+		"Recessional"
 	]
 }

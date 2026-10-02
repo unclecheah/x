@@ -18,6 +18,7 @@ export default class AppController {
 		this.isAuthenticated = false;
 		this.eventLoadRevision = 0;
 		this.pendingEventLoads = 0;
+		this.eventFormRevision = 0;
 
 		this.$status = $('<p>', { class: 'ui-feedback m-3', role: 'alert', hidden: true });
 	}
@@ -44,8 +45,8 @@ export default class AppController {
 		this.auth.on('auth:session-changed', (event, active) => { void this.handleSessionChanged(active); });
 		this.mainScreen.on('main:logout', () => { void this.logout(); });
 		this.mainScreen.on('main:date-change', () => { void this.loadEvents(); });
-		this.mainScreen.on('main:add-event', () => { this.openEventForm(); });
-		this.eventAccordion.$element.on('event:edit', (event, data) => { this.openEventForm(data.event); });
+		this.mainScreen.on('main:add-event', () => { void this.openEventForm(); });
+		this.eventAccordion.$element.on('event:edit', (event, data) => { void this.openEventForm(data.event); });
 		this.eventAccordion.$element.on('event:combine-hymns event:delete', (event, { eventId }) => {
 			console.log('[Event action]', event.type, eventId);
 		});
@@ -55,14 +56,40 @@ export default class AppController {
 				eventId: data.event?.id ?? null,
 				date: data.date,
 				details: data.details,
-				roles: data.roles
+				roles: data.roles,
+				hymns: data.hymns
 			});
 		});
 	}
 
-	openEventForm(event = null) {
+	async openEventForm(event = null) {
 		if (!this.isAuthenticated || !this.eventAccordion.isAdmin) return;
-		this.eventForm.show({ event, date: this.mainScreen.date });
+
+		const revision = ++this.eventFormRevision;
+		const sessionRevision = this.sessionRevision;
+
+		const isCurrent = () =>
+			revision === this.eventFormRevision &&
+			sessionRevision === this.sessionRevision &&
+			this.isAuthenticated;
+
+		try {
+			this.eventForm.show({ event, date: this.mainScreen.date });
+			this.eventForm.setHymnOptions([], []);
+			this.eventForm.setHymnOptionsStatus('Loading hymn suggestions…');
+
+			const [types, hymns] = await Promise.all([this.services.files.getHymnTypes(), this.services.files.getAllHymns()]);
+
+			if (!isCurrent()) return;
+			this.eventForm.setHymnOptions(types, hymns);
+			this.eventForm.setHymnOptionsStatus('');
+
+		} catch (error) {
+			if (!isCurrent()) return;
+			console.error('[Event form] Unable to load hymn suggestions.', error);
+
+			this.eventForm.setHymnOptionsStatus('Unable to load suggestions. You can still type your own values.', true);
+		}
 	}
 
 	async handleSessionChanged(active) {
