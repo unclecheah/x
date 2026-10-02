@@ -112,7 +112,7 @@ export default class EventAccordion {
 		const $heading = $('<h2>', { class: 'event-accordion__heading' });
 
 		const $button = $('<button>', {
-			id: headerId, type: 'button', class: 'event-accordion__header',
+			id: headerId, type: 'button', class: 'event-accordion__header', title: `Event ID: ${event.id}`,
 			'aria-expanded': String(expanded), 'aria-controls': panelId
 		});
 

@@ -1,10 +1,11 @@
 import $ from 'jquery';
 
 export default class AppController {
-	constructor({ auth, mainScreen, eventAccordion, footer, services, target = '#app' }) {
+	constructor({ auth, mainScreen, eventAccordion, eventForm, footer, services, target = '#app' }) {
 		this.auth = auth;
 		this.mainScreen = mainScreen;
 		this.eventAccordion = eventAccordion;
+		this.eventForm = eventForm;
 		this.footer = footer;
 		this.services = services;
 		this.$target = $(target);
@@ -43,14 +44,31 @@ export default class AppController {
 		this.auth.on('auth:session-changed', (event, active) => { void this.handleSessionChanged(active); });
 		this.mainScreen.on('main:logout', () => { void this.logout(); });
 		this.mainScreen.on('main:date-change', () => { void this.loadEvents(); });
-		this.eventAccordion.$element.on('event:combine-hymns event:edit event:delete',
-			(event, { eventId }) => { console.log('[Event action]', event.type, eventId); }
-		);
+		this.mainScreen.on('main:add-event', () => { this.openEventForm(); });
+		this.eventAccordion.$element.on('event:edit', (event, data) => { this.openEventForm(data.event); });
+		this.eventAccordion.$element.on('event:combine-hymns event:delete', (event, { eventId }) => {
+			console.log('[Event action]', event.type, eventId);
+		});
+		this.eventForm.$element.on('event-form:submit', (event, data) => {
+			console.log('[Event form submit]', {
+				mode: data.mode,
+				eventId: data.event?.id ?? null,
+				date: data.date,
+				details: data.details,
+				roles: data.roles
+			});
+		});
+	}
+
+	openEventForm(event = null) {
+		if (!this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+		this.eventForm.show({ event, date: this.mainScreen.date });
 	}
 
 	async handleSessionChanged(active) {
 		const revision = ++this.sessionRevision;
 		this.isAuthenticated = active === true;
+		this.eventForm.hide ();
 
 		// Invalidate requests belonging to the previous session state.
 		this.eventLoadRevision++;

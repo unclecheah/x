@@ -25,15 +25,25 @@ export default class FloatingField {
 	}
 
 	createElement() {
-		return $('<div>', { class: 'floating-field' });
+		const { type } = this.options;
+
+		return $('<div>', { class: 'floating-field' })
+			.toggleClass('floating-field--textarea', type === 'textarea')
+			.toggleClass('floating-field--datetime', type === 'datetime-local');
 	}
 
 	createInput() {
 		const { name, type, value, autocomplete, required } = this.options;
+		const isTextarea = type === 'textarea';
 
-		return $('<input>', {id: this.id, name, type, autocomplete, placeholder: ' ', class: 'form-control floating-field__input'})
-			.prop('required', required)
-			.val(value);
+		const $input = $(isTextarea ? '<textarea>' : '<input>', {
+			id: this.id, name, autocomplete, placeholder: ' ', class: 'form-control floating-field__input'
+		});
+
+		if (isTextarea) $input.attr('rows', 3);
+		else $input.attr('type', type);
+
+		return $input.prop('required', required).val(value);
 	}
 
 	createLabel() {

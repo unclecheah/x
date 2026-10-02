@@ -1,0 +1,231 @@
+.event-form {
+	--bs-modal-width: 800px;
+	--bs-modal-bg: var(--ui-surface);
+	--bs-modal-color: var(--ui-text);
+	--bs-modal-border-color: var(--ui-border);
+	--bs-modal-border-radius: var(--ui-radius-panel);
+	--bs-modal-header-border-color: var(--ui-border);
+	--bs-modal-footer-border-color: var(--ui-border);
+
+	font-family: var(--ui-font);
+
+	&__content {
+		box-shadow: var(--ui-shadow);
+	}
+
+	&__header {
+		padding: 22px 24px;
+	}
+
+	&__title {
+		margin: 0;
+	}
+
+	&__body {
+		min-height: 240px;
+		padding: 24px;
+	}
+
+	&__footer {
+		justify-content: flex-end;
+		gap: 12px;
+		padding: 16px 24px;
+
+		> * {
+			margin: 0;
+		}
+	}
+
+	&__cancel,
+	&__submit {
+		min-width: 110px;
+	}
+
+	&__cancel {
+		--bs-btn-bg: transparent;
+		--bs-btn-border-color: var(--ui-border);
+	}
+
+	&__section {
+		min-width: 0;
+	}
+
+	&__section-title {
+		margin: 0 0 24px;
+
+		color: var(--ui-accent);
+		font-size: 0.875rem;
+		font-weight: 500;
+		line-height: 1.4;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	&__section + .event-form__section {
+		margin-top: 28px;
+		padding-top: 24px;
+		border-top: 1px solid var(--ui-border);
+	}
+
+	&__section-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 12px;
+
+		margin-bottom: 12px;
+
+		.event-form__section-title {
+			margin: 0;
+		}
+	}
+
+	&__add-row {
+		--bs-btn-padding-x: 12px;
+		--bs-btn-padding-y: 8px;
+
+		min-height: 44px;
+		gap: 8px;
+		font-size: 0.875rem;
+	}
+
+	&__role-list {
+		display: grid;
+		gap: 12px;
+		margin-top: 18px;
+	}
+
+	&__role-row {
+		display: grid;
+		grid-template-columns: 44px 180px minmax(0, 1fr) 44px;
+		align-items: center;
+		gap: 12px;
+
+		min-width: 0;
+		padding: 12px 0;
+		background: var(--ui-surface);
+
+		& + .event-form__role-row {
+			border-top: 1px solid var(--ui-border);
+		}
+	}
+
+	&__row-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+
+		width: 44px;
+		height: 44px;
+		padding: 0;
+
+		border: 1px solid transparent;
+		border-radius: var(--ui-radius-small);
+
+		background: transparent;
+		color: var(--ui-muted);
+
+		font-size: 1.125rem;
+		cursor: pointer;
+
+		&:hover {
+			background: var(--ui-accent-soft);
+			color: var(--ui-text);
+		}
+	}
+
+	&__role-handle {
+		cursor: grab;
+		touch-action: none;
+		user-select: none;
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	&__role-remove:hover {
+		color: var(--ui-error);
+	}
+
+	&__role-row--ghost {
+		opacity: 0.35;
+	}
+
+	&__roles-empty {
+		margin-top: 12px;
+	}
+
+	&__details-fields {
+		display: grid;
+		gap: 24px;
+	}
+
+	&__details-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 280px;
+		gap: 20px;
+		align-items: start;
+	}
+}
+
+@media (max-width: 767.98px) {
+	.event-form {
+		&__details-row {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 24px;
+		}
+
+		&__role-row {
+			grid-template-columns: 44px minmax(0, 1fr) 44px;
+			grid-template-areas:
+				'handle role remove'
+				'handle person remove';
+
+			column-gap: 8px;
+			row-gap: 24px;
+			padding-block: 16px;
+		}
+
+		&__role-handle {
+			grid-area: handle;
+		}
+
+		&__role-name {
+			grid-area: role;
+		}
+
+		&__role-person {
+			grid-area: person;
+		}
+
+		&__role-remove {
+			grid-area: remove;
+		}
+	}
+}
+
+@media (max-width: 575.98px) {
+	.event-form {
+		&__header {
+			padding: 20px 16px;
+		}
+
+		&__body {
+			padding: 20px 16px;
+		}
+
+		&__footer {
+			gap: 10px;
+			padding: 16px;
+			padding-bottom: max(16px, env(safe-area-inset-bottom));
+		}
+
+		&__cancel,
+		&__submit {
+			flex: 1;
+			min-width: 0;
+		}
+	}
+}

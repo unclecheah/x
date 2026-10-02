@@ -55,6 +55,7 @@ import AuthComponent from './components/auth';
 import MainScreen from './components/main/MainScreen';
 import AppController from './app/AppController';
 import EventAccordion from './components/events/EventAccordion';
+import EventForm from './components/events/EventForm';
 
 // const mainScreen = new MainScreen({
 // 	username: 'Andrew',
@@ -93,10 +94,13 @@ $(async () => {
 	eventAccordion.mount(mainScreen.$events);
 	//***********
 
+	const eventForm = new EventForm ();
+
 	const app = new AppController({
 		auth,
 		mainScreen,
 		eventAccordion,
+		eventForm,
 		footer: gFooter,
 
 		services: {

@@ -110,4 +110,25 @@
 			color: var(--ui-accent);
 		}
 	}
+
+	&--textarea .floating-field__input {
+		display: block;
+		height: auto;
+		min-height: 110px;
+		resize: vertical;
+	}
+
+	&--textarea .floating-field__label,
+	&--datetime .floating-field__label {
+		top: 0;
+		transform: translateY(-50%) scale(0.8);
+	}
+
+	&--datetime .floating-field__input {
+		color-scheme: dark;
+	}
+
+	&__input[readonly] {
+		color: var(--ui-muted);
+	}
 }
