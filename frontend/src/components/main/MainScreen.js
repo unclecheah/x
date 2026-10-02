@@ -2,9 +2,10 @@ import $ from 'jquery';
 import './MainScreen.scss';
 
 export default class MainScreen {
-	constructor({ username = '', date = MainScreen.today(), footerElement = null } = {}) {
+	constructor({ username = '', date = MainScreen.today(), footerElement = null, isAdmin = false } = {}) {
 		this.$element = $('<div>', { class: 'main-screen' });
 		this.$header = this.createHeader(username, date);
+		this.setAdmin (isAdmin);
 		this.$main = this.createMain();
 		this.$footer = this.createFooter(footerElement);
 
@@ -42,10 +43,9 @@ export default class MainScreen {
 	createDateControls(date) {
 		const $group = $('<div>', { class: 'main-screen__date-controls' });
 		const $icon = $('<i>', { class: 'bi bi-music-note-beamed main-screen__icon', 'aria-hidden': 'true' });
-
 		this.$date = $('<input>', { type: 'date', class: 'form-control main-screen__date ui-focus', 'aria-label': 'Event date' }).val(date);
 
-		return $group.append($icon, this.$date);
+		return $group.append($icon, this.$date, this.createAddEventButton());
 	}
 
 	createAccountControls(username) {
@@ -74,43 +74,64 @@ export default class MainScreen {
 
 	createFooter(footerElement) {
 		const $host = $('<div>', { class: 'main-screen__footer' });
-
 		if (footerElement) $host.append(footerElement);
 
 		return $host;
 	}
 
+	createAddEventButton() {
+		this.$addEvent = $('<button>', {
+			type: 'button', title: 'Add event',
+			class: 'btn ui-button ui-focus main-screen__add-event d-none',
+			'aria-label': 'Add event'
+		});
+
+		this.$addEvent.append(
+			$('<i>', { class: 'bi bi-plus-lg', 'aria-hidden': 'true' }),
+			$('<span>', { class: 'main-screen__add-event-label', text: 'Add Event' })
+		);
+
+		return this.$addEvent;
+	}
+
 	bindEvents() {
 		this.$date.on('change.mainScreen', () => {
 			if (!this.date) return;
-
 			this.$element.trigger('main:date-change', [{ date: this.date }]);
+		});
+
+		this.$addEvent.on('click.mainScreen', () => {
+			if (!this.isAdmin) return;
+			this.$element.trigger('main:add-event');
 		});
 
 		this.$logout.on('click.mainScreen', () => { this.$element.trigger('main:logout'); });
 	}
 
+	setAdmin(isAdmin) {
+		this.isAdmin = isAdmin === true;
+		this.$addEvent.toggleClass('d-none', !this.isAdmin);
+
+		return this;
+	}
+
 	mount(target) {
 		$(target).append(this.$element);
-
 		return this;
 	}
 
 	unmount() {
 		this.$element.detach();
-
 		return this;
 	}
 
 	on(eventName, handler) {
 		this.$element.on(eventName, handler);
-
 		return this;
 	}
 
 	off(eventName, handler) {
 		this.$element.off(eventName, handler);
-
 		return this;
 	}
 
@@ -124,7 +145,6 @@ export default class MainScreen {
 
 	setLoggingOut(busy) {
 		this.$logout.prop('disabled', busy);
-
 		return this;
 	}
 }

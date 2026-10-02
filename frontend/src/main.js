@@ -3,7 +3,6 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './main.scss';
-import gFiles from './api/files.js';
 
 // import gTestSession from './test/api/testSession.js';
 // gTestSession.run ();
@@ -50,6 +49,8 @@ import './styles/shared-ui.scss';
 import gCubeOverlay from './components/cubeOverlay/cubeOverlay.js';
 import gAuth from './api/auth.js';
 import gSession from './api/session.js';
+import gDb from './api/db.js';
+import gFiles from './api/files.js';
 import AuthComponent from './components/auth';
 import MainScreen from './components/main/MainScreen';
 import AppController from './app/AppController';
@@ -84,40 +85,25 @@ $(async () => {
 
 	const mainScreen = new MainScreen();
 
-	mainScreen.on('main:date-change', (event, { date }) => { console.log('[Main] Selected date:', date); });
+	// mainScreen.on('main:date-change', (event, { date }) => { console.log('[Main] Selected date:', date); });
+	mainScreen.on('main:add-event', () => { console.log('[Main] Add event requested'); });
 
 	//*******  temp
-	const eventAccordion = new EventAccordion({
-		events: [
-			{
-				title: 'Sunday Mass',
-				timestamp: '06 Sep 2026 · 10:00 AM',
-				colour: '#4ca76b'
-			},
-			{
-				title: 'Choir Practice',
-				timestamp: '10 Sep 2026 · 8:00 PM',
-				colour: '#4ca76b'
-			},
-			{
-				title: 'Sunday Mass',
-				timestamp: '13 Sep 2026 · 10:00 AM',
-				colour: '#4ca76b'
-			}
-		]
-	});
-
+	const eventAccordion = new EventAccordion();
 	eventAccordion.mount(mainScreen.$events);
 	//***********
 
 	const app = new AppController({
 		auth,
 		mainScreen,
+		eventAccordion,
 		footer: gFooter,
 
 		services: {
 			auth: gAuth,
 			session: gSession,
+			db: gDb,
+			files: gFiles,
 			overlay: gCubeOverlay
 		},
 

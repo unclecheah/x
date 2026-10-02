@@ -60,6 +60,22 @@
 		flex-shrink: 0;
 	}
 
+	&__add-event {
+		flex-shrink: 0;
+		gap: 8px;
+
+		min-width: 44px;
+		min-height: 44px;
+		padding: 8px 12px;
+
+		font-size: 0.875rem;
+
+		.bi {
+			font-size: 1.125rem;
+			line-height: 1;
+		}
+	}
+
 	&__account-controls {
 		justify-content: flex-end;
 	}
@@ -171,6 +187,10 @@
 			font-size: 0.875rem;
 		}
 
+		&__add-event-label {
+			display: none;
+		}
+
 		&__username {
 			max-width: 100px;
 			font-size: 0.875rem;
@@ -190,5 +210,15 @@
 			font-size: 1.5rem;
 			text-align: left;
 		}
+	}
+}
+
+@media (max-width: 359.98px) {
+	.main-screen__header-inner {
+		flex-wrap: wrap;
+	}
+
+	.main-screen__account-controls {
+		margin-left: auto;
 	}
 }
