@@ -16,8 +16,7 @@ export default class EventAccordion {
 		this.setEvents (events);
 	}
 
-	createItem(event, index) {
-		const expanded = index === 0;
+	createItem(event, index, expanded = index === 0) {
 		const headerId = `${this.id}-header-${index}`;
 		const panelId = `${this.id}-panel-${index}`;
 
@@ -178,16 +177,25 @@ export default class EventAccordion {
 		return $media;
 	}
 
-	setEvents(events) {
+	getNextEvent(eventId) {
+		const index = this.events.findIndex((event) => String(event.id) === String(eventId));
+		return index >= 0 ? this.events[index + 1] ?? null : null;
+	}
+
+	setEvents(events, { expandedEventId = null } = {}) {
+		this.events = [...events];
 		this.collapses.forEach((collapse) => { collapse.dispose(); });
 		this.collapses = [];
 		this.$element.empty();
 
-		events.forEach((event, index) => { this.createItem(event, index); });
+		const requestedIndex = expandedEventId == null
+			? 0
+			: this.events.findIndex((event) => String(event.id) === String(expandedEventId));
 
-		if (events.length === 0) {
-			this.$element.append($('<p>', { class: 'ui-copy', text: 'No events found for this date.' }));
-		}
+		const expandedIndex = Math.max(0, requestedIndex);
+		this.events.forEach((event, index) => { this.createItem(event, index, index === expandedIndex); });
+
+		if (this.events.length === 0) this.$element.append($('<p>', { class: 'ui-copy', text: 'No events found for this date.' }));
 
 		return this;
 	}

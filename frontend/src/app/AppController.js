@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
 export default class AppController {
-	constructor({ auth, mainScreen, eventAccordion, eventForm, footer, services, target = '#app' }) {
+	constructor({ auth, mainScreen, eventAccordion, eventForm, confirmDialog, footer, services, target = '#app' }) {
 		this.auth = auth;
 		this.mainScreen = mainScreen;
 		this.eventAccordion = eventAccordion;
@@ -20,6 +20,9 @@ export default class AppController {
 		this.pendingEventLoads = 0;
 		this.eventFormRevision = 0;
 		this.isSavingEvent = false;
+		this.confirmDialog = confirmDialog;
+		this.pendingDelete = null;
+		this.isDeletingEvent = false;
 
 		this.$status = $('<p>', { class: 'ui-feedback m-3', role: 'alert', hidden: true });
 	}
@@ -66,7 +69,11 @@ export default class AppController {
 		this.mainScreen.on('main:date-change', () => { void this.loadEvents(); });
 		this.mainScreen.on('main:add-event', () => { void this.openEventForm(); });
 		this.eventAccordion.$element.on('event:edit', (event, data) => { void this.openEventForm(data.event); });
-		this.eventAccordion.$element.on('event:combine-hymns event:delete', (event, { eventId }) => {
+		this.eventAccordion.$element.on('event:delete', (event, data) => { this.requestDeleteEvent(data.event); });
+		this.confirmDialog.$element.on('confirm:yes', () => { void this.deleteEvent(); });
+		this.confirmDialog.$element.on('confirm:closed', () => { this.pendingDelete = null; });
+
+		this.eventAccordion.$element.on('event:combine-hymns', (event, { eventId }) => {
 			console.log('[Event action]', event.type, eventId);
 		});
 		// this.eventForm.$element.on('event-form:submit', (event, data) => {
@@ -80,17 +87,13 @@ export default class AppController {
 		// 	});
 		// });
 		this.eventForm.$element.on('event-form:submit', (event, data) => {
-			if (data.mode === 'add') {
-				void this.insertEvent(data);
-				return;
-			}
-
-			this.eventForm.showError('Saving changes to existing events is not connected yet.');
+			if (data.mode === 'add') void this.insertEvent(data);
+			else if (data.mode === 'edit') void this.updateEvent(data);
 		});
 	}
 
 	async openEventForm(event = null) {
-		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin || this.isDeletingEvent) return;
 
 		const revision = ++this.eventFormRevision;
 		const sessionRevision = this.sessionRevision;
@@ -124,6 +127,9 @@ export default class AppController {
 		this.isAuthenticated = active === true;
 		this.eventForm.setSaving (false);
 		this.eventForm.hide ();
+		this.pendingDelete = null;
+		this.confirmDialog.setBusy(false);
+		this.confirmDialog.hide();
 
 		// Invalidate requests belonging to the previous session state.
 		this.eventLoadRevision++;
@@ -161,7 +167,7 @@ export default class AppController {
 		}
 	}
 
-	async loadEvents() {
+	async loadEvents({ expandedEventId = null } = {}) {
 		if (!this.isAuthenticated) return;
 		const date = this.mainScreen.date;
 		if (!date) return;
@@ -210,7 +216,7 @@ export default class AppController {
 
 			// Ignore results if the selected date or session has changed.
 			if (revision !== this.eventLoadRevision || !this.isAuthenticated) return;
-			this.eventAccordion.setEvents(detailedEvents);
+			this.eventAccordion.setEvents(detailedEvents, { expandedEventId });
 
 		} catch (error) {
 			if (revision !== this.eventLoadRevision || !this.isAuthenticated) return;
@@ -241,7 +247,7 @@ export default class AppController {
 	}
 
 	async insertEvent({ details, roles, hymns }) {
-		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin || this.isDeletingEvent) return;
 
 		this.eventForm.clearError();
 
@@ -294,13 +300,122 @@ export default class AppController {
 		}
 	}
 
+	async updateEvent({ event: originalEvent, details, roles, hymns }) {
+		if (this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin || this.isDeletingEvent) return;
+		this.eventForm.clearError();
+
+		if (originalEvent?.id == null || originalEvent.id === '') {
+			this.eventForm.showError('Unable to update this event because its ID is missing.');
+			return;
+		}
+
+		if (!details.title || !details.timestamp) {
+			this.eventForm.showError('Please enter the event title and date/time.');
+			return;
+		}
+
+		const sessionRevision = this.sessionRevision;
+		const isCurrentSession = () => sessionRevision === this.sessionRevision && this.isAuthenticated;
+
+		const data = {
+			id: originalEvent.id,
+			title: details.title,
+			timestamp: details.timestamp,
+			note: details.note,
+			roles,
+			hymns,
+			updated: AppController.localTimestamp()
+		};
+
+		this.isSavingEvent = true;
+		this.eventForm.setSaving(true);
+
+		try {
+			const result = await this.services.db.update(data);
+
+			if (result === false) throw new Error('The update operation returned false.');
+			if (!isCurrentSession()) return;
+			this.eventForm.setSaving(false);
+			this.eventForm.hide();
+
+			// Follow the event if its date has changed.
+			this.mainScreen.setDate(data.timestamp.slice(0, 10));
+
+			// Reload event details, roles, hymns, and media.
+			await this.loadEvents();
+
+		} catch (error) {
+			console.error('[AppController] Unable to update event.', error);
+			if (isCurrentSession()) this.eventForm.showError('Unable to update the event. Please check the error and try again.');
+
+		} finally {
+			this.isSavingEvent = false;
+			if (isCurrentSession()) this.eventForm.setSaving(false);
+		}
+	}
+
+	requestDeleteEvent(event) {
+		if (this.isSavingEvent || this.isDeletingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin) return;
+
+		if (event?.id == null || event.id === '') {
+			this.showError('Unable to delete this event because its ID is missing.', new Error('Missing event ID.'));
+			return;
+		}
+
+		const nextEvent = this.eventAccordion.getNextEvent(event.id);
+
+		this.pendingDelete = {
+			id: event.id,
+			nextEvent: nextEvent ? { id: nextEvent.id, timestamp: nextEvent.timestamp } : null,
+			sessionRevision: this.sessionRevision
+		};
+
+		this.confirmDialog.show({
+			title: 'Delete event?',
+			message: `Delete “${event.title ?? 'Untitled event'}”?\nEvent ID: ${event.id}`
+		});
+	}
+
+	async deleteEvent() {
+		const pending = this.pendingDelete;
+
+		if (!pending || this.isDeletingEvent || this.isSavingEvent || !this.isAuthenticated || !this.eventAccordion.isAdmin || pending.sessionRevision !== this.sessionRevision) return;
+
+		const isCurrentSession = () => pending.sessionRevision === this.sessionRevision && this.isAuthenticated;
+
+		this.isDeletingEvent = true;
+		this.confirmDialog.setBusy(true);
+
+		try {
+			const result = await this.services.db.delete({ id: pending.id });
+			if (result === false) throw new Error('The delete operation returned false.');
+
+		} catch (error) {
+			console.error('[AppController] Unable to delete event.', error);
+			if (isCurrentSession()) this.confirmDialog.showError('Unable to delete the event. Please check the error and try again.');
+
+			return;
+
+		} finally {
+			this.isDeletingEvent = false;
+			if (isCurrentSession()) this.confirmDialog.setBusy(false);
+		}
+
+		if (!isCurrentSession()) return;
+		this.confirmDialog.hide();
+		const nextEvent = pending.nextEvent;
+		const date = nextEvent ? String(nextEvent.timestamp).slice(0, 10) : AppController.localTimestamp().slice(0, 10);
+
+		this.mainScreen.setDate(date);
+		await this.loadEvents({ expandedEventId: nextEvent?.id ?? null });
+	}
+
 	clearError() {
 		this.$status.text('').prop('hidden', true);
 	}
 
 	showError(message, error) {
 		console.error('[AppController]', message, error);
-
 		this.$status.text(message).prop('hidden', false);
 	}
 }

@@ -1,0 +1,52 @@
+.confirm-dialog {
+	--bs-modal-width: 420px;
+	--bs-modal-bg: var(--ui-surface);
+	--bs-modal-color: var(--ui-text);
+	--bs-modal-border-color: var(--ui-border);
+	--bs-modal-border-radius: var(--ui-radius-panel);
+	--bs-modal-header-border-color: var(--ui-border);
+	--bs-modal-footer-border-color: var(--ui-border);
+
+	font-family: var(--ui-font);
+
+	.modal-content {
+		box-shadow: var(--ui-shadow);
+	}
+
+	.modal-header,
+	.modal-body,
+	.modal-footer {
+		padding: 18px 20px;
+	}
+
+	.modal-title {
+		margin: 0;
+		font-size: 1.25rem;
+	}
+
+	&__message {
+		margin: 0 0 12px;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	.modal-footer {
+		gap: 10px;
+
+		> * {
+			margin: 0;
+		}
+	}
+
+	&__yes {
+		--bs-btn-color: var(--ui-error);
+		--bs-btn-border-color: var(--ui-error);
+		--bs-btn-hover-color: var(--ui-error);
+		--bs-btn-hover-border-color: var(--ui-error);
+		--bs-btn-hover-bg: color-mix(
+			in srgb,
+			var(--ui-error) 12%,
+			var(--ui-surface)
+		);
+	}
+}

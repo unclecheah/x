@@ -56,6 +56,7 @@ import MainScreen from './components/main/MainScreen';
 import AppController from './app/AppController';
 import EventAccordion from './components/events/EventAccordion';
 import EventForm from './components/events/EventForm';
+import ConfirmDialog from './components/confirmDialog/ConfirmDialog.js';
 
 // const mainScreen = new MainScreen({
 // 	username: 'Andrew',
@@ -89,18 +90,17 @@ $(async () => {
 	// mainScreen.on('main:date-change', (event, { date }) => { console.log('[Main] Selected date:', date); });
 	mainScreen.on('main:add-event', () => { console.log('[Main] Add event requested'); });
 
-	//*******  temp
 	const eventAccordion = new EventAccordion();
 	eventAccordion.mount(mainScreen.$events);
-	//***********
-
 	const eventForm = new EventForm ();
+	const confirmDialog = new ConfirmDialog ();
 
 	const app = new AppController({
 		auth,
 		mainScreen,
 		eventAccordion,
 		eventForm,
+		confirmDialog,
 		footer: gFooter,
 
 		services: {
