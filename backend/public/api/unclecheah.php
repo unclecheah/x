@@ -63,12 +63,12 @@ class Unclecheah {
 			else if (isset ($_GET['session_sessid']))	echo $gSession->sessId ();
 			else if (isset ($_GET['session_getvar']))	echo $gSession->get ($_GET['key']);
 
-			else if (isset ($_GET['files_getHymnTypes']))	echo $gFiles->getHymnTypes ();
-			else if (isset ($_GET['files_bgImages']))		echo $gFiles->getBgImages ();
-			else if (isset ($_GET['files_hymn2bk']))		echo $gFiles->hymn2bk ($_GET['data']);
-			else if (isset ($_GET['files_scoreExist']))		echo $gFiles->scoreExist ($_GET['data']);
-			else if (isset ($_GET['files_recordingExist']))	echo $gFiles->recordingExist ($_GET['data']);
-			else if (isset ($_GET['files_linkExist']))		echo $gFiles->linkExist ($_GET['data']);
+			else if (isset ($_GET['files_getHymnTypes']))		echo $gFiles->getHymnTypes ();
+			else if (isset ($_GET['files_bgImages']))			echo $gFiles->getBgImages ();
+			else if (isset ($_GET['files_hymn2bk']))			echo $gFiles->hymn2bk ($_GET['data']);
+			else if (isset ($_GET['files_scoreExist']))			echo $gFiles->scoreExist ($_GET['data']);
+			else if (isset ($_GET['files_recordingExist']))		echo $gFiles->recordingExist ($_GET['data']);
+			else if (isset ($_GET['files_linkExist']))			echo $gFiles->linkExist ($_GET['data']);
 			
 			else if (isset ($_GET['db_events']))		echo $gDB->getEvents	($_GET['date']);
 			else if (isset ($_GET['db_event']))			echo $gDB->getEvent		($_GET['eventid']);

@@ -5,6 +5,7 @@ import './EventAccordion.scss';
 
 export default class EventAccordion {
 	static nextId = 0;
+	static nextAudioId = 0;
 
 	constructor({ events = [] } = {}) {
 		this.id = `event-accordion-${++EventAccordion.nextId}`;
@@ -144,31 +145,96 @@ export default class EventAccordion {
 
 	createHymnMedia(hymn) {
 		const $media = $('<dd>', { class: 'event-accordion__media' });
-		const recording = String(hymn.recording ?? '').trim();
-		const link = String(hymn.link ?? '').trim();
 
-		if (recording) {
-			$media.append(
-				$('<audio>', {
-					class: 'event-accordion__audio', src: recording, preload: 'none',
-					'aria-label': `Recording of ${hymn.hymn}`
-				}).prop('controls', true)
-			);
+		const recordings = Array.isArray(hymn.recordings)
+			? hymn.recordings.filter((recording) => typeof recording?.url === 'string' && recording.url.trim() !== '')
+			: [];
+
+		const link = String(hymn.link ?? '').trim();
+		const hymnName = String(hymn.hymn ?? '');
+
+		const $playback = $('<div>', { class: 'event-accordion__playback' });
+
+		if (recordings.length > 0) {
+			const audioId = `${this.id}-audio-${++EventAccordion.nextAudioId}`;
+
+			const $audio = $('<audio>', {
+				id: audioId, class: 'event-accordion__audio', preload: 'none'
+			}).prop('controls', true);
+
+			const audio = $audio[0];
+			const $partRow = $('<div>', { class: 'event-accordion__part-row' });
+			const $buttons = $('<div>', { class: 'event-accordion__part-buttons', role: 'group',
+				'aria-label': `Recordings for ${hymnName}`
+			});
+
+			const $selectedPart = $('<span>', { class: 'event-accordion__selected-part',
+				'aria-live': 'polite', 'aria-atomic': 'true'
+			});
+
+			const labels = recordings.map((recording) => this.getRecordingLabels(recording));
+
+			let selectedIndex = -1;
+
+			const selectRecording = (index) => {
+				// Clicking the selected button must not restart playback.
+				if (index === selectedIndex) return;
+				selectedIndex = index;
+
+				const recording = recordings[index];
+				const label = labels[index];
+				audio.pause();
+
+				$audio
+					.attr('src', recording.url.trim())
+					.attr('aria-label', `${hymnName} — ${label.long}`);
+
+				audio.load();
+				$selectedPart.text(label.long);
+
+				$buttons.children('button').each((buttonIndex, element) => {
+					$(element).attr('aria-pressed', String(buttonIndex === index));
+				});
+			};
+
+			if (recordings.length > 1) {
+				recordings.forEach((recording, index) => {
+					const label = labels[index];
+
+					const $button = $('<button>', {
+						type: 'button', class: 'event-accordion__part-button ui-focus', text: label.short, title: label.long,
+						'aria-label': `Select ${label.long}`, 'aria-controls': audioId, 'aria-pressed': 'false'
+					});
+
+					$button.on('click.eventAccordion', () => { selectRecording(index); });
+					$buttons.append($button);
+				});
+
+				$partRow.append($buttons);
+			}
+
+			$partRow.append($selectedPart);
+			$media.append($partRow);
+			$playback.append($audio);
+
+			selectRecording(0);
 		}
 
 		if (link) {
-			$media.append(
+			$playback.append(
 				$('<a>', {
 					class: 'event-accordion__external-link ui-focus', href: link, target: '_blank',
 					rel: 'noopener noreferrer', title: 'Open external link in a new tab',
-					'aria-label': `External link for ${hymn.hymn} (opens in a new tab)`
+					'aria-label': `External link for ${hymnName} (opens in a new tab)`
 				}).append(
 					$('<i>', { class: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' })
 				)
 			);
 		}
 
-		if (!recording && !link) {
+		if (recordings.length > 0 || link) {
+			$media.append($playback);
+		} else {
 			$media.append(
 				$('<span>', { class: 'event-accordion__media-empty', text: '—', 'aria-label': 'No media available' })
 			);
@@ -209,6 +275,41 @@ export default class EventAccordion {
 
 	setHeaderExpanded($button, expanded) {
 		$button.attr('aria-expanded', String(expanded));
+	}
+
+	getRecordingLabels(recording) {
+		const parts = Array.isArray(recording.parts)
+			? recording.parts
+				.map((part) => String(part).trim().toUpperCase())
+				.filter(Boolean)
+			: [];
+
+		if (parts.length === 0) {
+			return {
+				short: 'General',
+				long: 'General recording'
+			};
+		}
+
+		const names = {
+			D: 'Descant',
+			S: 'Soprano',
+			A: 'Alto',
+			T: 'Tenor',
+			B: 'Bass'
+		};
+
+		const descriptions = parts.map((part) =>
+			part.replace(
+				/^([DSATB])([12])?$/,
+				(match, voice, division) => `${names[voice]}${division ? ` ${division}` : ''}`
+			)
+		);
+
+		return {
+			short: parts.join('+'),
+			long: descriptions.join(' + ')
+		};
 	}
 
 	createActions(event) {

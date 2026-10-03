@@ -200,13 +200,22 @@ export default class AppController {
 
 					const hymnsWithMedia = await Promise.all(
 						hymns.map(async (hymn) => {
-							const [score, recording, link] = await Promise.all([
+							const [score, recordingResponse, link] = await Promise.all([
 								this.services.files.scoreExist(hymn.hymn),
 								this.services.files.recordingExist(hymn.hymn),
 								this.services.files.linkExist(hymn.hymn)
 							]);
 
-							return { ...hymn, score, recording, link };
+							const recordingResult = typeof recordingResponse === 'string'
+								? JSON.parse(recordingResponse)
+								: recordingResponse;
+
+							const recordings =
+								recordingResult?.found === true && Array.isArray(recordingResult.recordings)
+								? recordingResult.recordings
+								: [];
+
+							return { ...hymn, score, recordings, link };
 						})
 					);
 

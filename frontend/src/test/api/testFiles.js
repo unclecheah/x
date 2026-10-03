@@ -6,6 +6,7 @@ class TestFiles {
 	#bk = '';
 	#score = '';
 	#recording = '';
+	#recordingParts = '';
 	#link = '';
 	#combined = '';
 
@@ -40,10 +41,15 @@ class TestFiles {
 	}
 
 	recordingExist = async () => {
-		this.#recording = await gFiles.recordingExist ("Everlasting Light [L7]");
+		this.#recording = await gFiles.recordingExist ("Mass Of Christ The Saviour [BB919] Holy Holy");
 		console.log (this.#recording);
 		this.upd ();
 	}
+
+	// getRecordingParts = async () => {
+	// 	this.#recordingParts = await gFiles.getRecordingParts ("Angel.S1A1.mp3");
+	// 	console.log (this.#recordingParts);
+	// }
 
 	linkExist = async () => {
 		this.#link = await gFiles.linkExist ("To Rescue A Sinner Like Me");

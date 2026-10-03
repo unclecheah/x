@@ -75,15 +75,94 @@ class Files {
 		else return "";
 	}
 
-	public function recordingExist ($hymn) {
-		//	TODO: to handle SATB
-		$bk = $this->hymn2bk ($hymn);
+	// public function recordingExist ($hymn) {
+	// 	//	TODO: to handle SATB
+	// 	$bk = $this->hymn2bk ($hymn);
 
-		foreach (self::$config["audioExt"] as $ext) {
-			if (file_exists (MUSICROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
+	// 	foreach (self::$config["audioExt"] as $ext) {
+	// 		if (file_exists (MUSICROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
+	// 	}
+
+	// 	return "";
+	// }
+
+	// public function getRecordingParts(string $filename) {
+	// 	if (!self::$config) $this->loadConfig ();
+
+	// 	$extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+	// 	if (!in_array($extension, self::$config['audioExt'], true)) return json_encode([]);
+
+	// 	// Remove the extension, e.g. "Song1.S1A1.mp3" → "Song1.S1A1".
+	// 	$name = pathinfo($filename, PATHINFO_FILENAME);
+
+	// 	// Parts must appear after the final dot.
+	// 	$dotPosition = strrpos($name, '.');
+	// 	if ($dotPosition === false) return json_encode([]);
+
+	// 	$parts = strtoupper(substr($name, $dotPosition + 1));
+
+	// 	// Validate the entire suffix before extracting individual parts.
+	// 	if (!preg_match('/\A(?:[DSATB][12]?)+\z/', $parts)) return json_encode([]);
+
+	// 	preg_match_all('/[DSATB][12]?/', $parts, $matches);
+
+	// 	return json_encode($matches[0]);
+	// }
+
+	public function recordingExist($hymn): string {
+		$bk = $this->hymn2bk($hymn);
+		$directory = MUSICROOT . "/recordings/$bk";
+		$baseUrl = DOCROOT . "/recordings/$bk";
+
+		$result = [
+			'found' => false,
+			'recordings' => []
+		];
+
+		// Build an extension pattern from your existing configuration.
+		$extensions = array_map(function ($ext) {
+			return preg_quote($ext, '~');
+		}, self::$config['audioExt']);
+
+		// Match the exact hymn name, optional voice parts, and extension.
+		// Voice parts and extensions are case-insensitive.
+		$pattern = '~\A'
+			. preg_quote($hymn, '~')
+			. '(?:\.((?i:[DSATB][12]?)+))?'
+			. '\.(?i:' . implode('|', $extensions) . ')'
+			. '\z~';
+
+		if (is_dir($directory)) {
+			$filenames = scandir($directory);
+
+			if ($filenames === false) throw new \RuntimeException('Unable to read recordings directory.');
+
+			foreach ($filenames as $filename) {
+				if (!preg_match($pattern, $filename, $matches)) continue;
+				if (!is_file($directory . '/' . $filename)) continue;
+
+				$parts = [];
+
+				if (!empty($matches[1])) {
+					preg_match_all(
+						'/[SATB][12]?/',
+						strtoupper($matches[1]),
+						$partMatches
+					);
+
+					$parts = $partMatches[0];
+				}
+
+				$result['recordings'][] = [
+					'url' => $baseUrl . '/' . $filename,
+					'parts' => $parts
+				];
+			}
 		}
 
-		return "";
+		$result['found'] = count($result['recordings']) > 0;
+
+		return json_encode($result, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 	}
 
 	public function linkExist ($hymn) {

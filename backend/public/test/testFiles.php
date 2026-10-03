@@ -6,10 +6,11 @@ function testFiles () {
 
 	// $gFiles->loadConfig ();
 	// echo $gFiles->getBgImages ();
-	echo $gFiles->getHymnTypes ();
+	// echo $gFiles->getHymnTypes ();
 	// echo $gFiles->hymn2Bk("Psalm [SPG123]");
 	// echo $gFiles->scoreExist ("A Call To Blessing [BB599]");
 	// echo $gFiles->recordingExist ("Psalm 040 - Here I Am");
+	echo ($gFiles->getRecordingParts ("Angels.AB.m4a"));
 	// echo $gFiles->linkExist ("To Rescue A Sinner Like Me");
 	// echo $gFiles->getDetails (["To Rescue A Sinner Like Me", "Bless Our Singapore"]);
 	// echo $gFiles->getAllHymns ();
