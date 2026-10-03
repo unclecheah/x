@@ -92,7 +92,8 @@ $(async () => {
 
 	const eventAccordion = new EventAccordion();
 	eventAccordion.mount(mainScreen.$events);
-	const eventForm = new EventForm ();
+	const eventForm = new EventForm();
+	const combineForm = new EventForm({ purpose: 'combine' });
 	const confirmDialog = new ConfirmDialog ();
 
 	const app = new AppController({
@@ -100,6 +101,7 @@ $(async () => {
 		mainScreen,
 		eventAccordion,
 		eventForm,
+		combineForm,
 		confirmDialog,
 		footer: gFooter,
 

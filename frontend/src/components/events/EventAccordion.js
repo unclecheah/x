@@ -56,6 +56,9 @@ export default class EventAccordion {
 			);
 		}
 
+		const $combinedScores = this.createCombinedScores(event);
+		if ($combinedScores) $body.append($combinedScores);
+
 
 		$panel.append($body, this.createActions(event));
 		$item.append($header, $panel);
@@ -241,6 +244,39 @@ export default class EventAccordion {
 		}
 
 		return $media;
+	}
+
+	createCombinedScores(event) {
+		const scores = event.combinedScores ?? {};
+
+		const items = [
+			{ label: 'Vocal scores', url: scores.vocals },
+			{ label: 'Musician scores', url: scores.musicians }
+		];
+
+		const $links = $('<div>', {
+			class: 'event-accordion__combined-scores', role: 'group',
+			'aria-label': 'Combined scores'
+		});
+
+		items.forEach(({ label, url }) => {
+			if (typeof url !== 'string' || !url.trim()) return;
+
+			const $link = $('<a>', {
+				class: 'btn ui-button ui-focus event-accordion__combined-score',
+				href: url.trim(), target: '_blank', rel: 'noopener noreferrer',
+				title: `Open ${label.toLowerCase()} PDF in a new tab`,
+				'aria-label': `${label} (PDF, opens in a new tab)`
+			}).append(
+				$('<i>', { class: 'bi bi-file-earmark-pdf', 'aria-hidden': 'true' }),
+				$('<span>', { text: label }),
+				$('<i>', { class: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' })
+			);
+
+			$links.append($link);
+		});
+
+		return $links.children().length ? $links : null;
 	}
 
 	getNextEvent(eventId) {

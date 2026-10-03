@@ -230,11 +230,12 @@ class Files {
 		return json_encode ($names);
 	}
 
-	public function combine ($hymns, $evtid) {
+	public function combine ($hymns, $evtid, $vm) {
 		/*
 			input:
 				$hymns = ['hymn1', 'hymn2', ...]
 				$evtid = 520
+				$vm = 'V'
 
 			returns {status: "success"}
 		*/
@@ -254,14 +255,23 @@ class Files {
 			}
 		}
 
-		$pdf->Output ('F', MUSICROOT . "/combined/$evtid.pdf");
+		$pdf->Output ('F', MUSICROOT . "/combined/$evtid.$vm.pdf");
 		return json_encode (["status" => "success"]);
 	}
 
+	// public function getCombined ($evtid) {
+	// 	$file = MUSICROOT . "/combined/$evtid.pdf";
+	// 	if (file_exists ($file)) return $file;
+	// 	else return "";
+	// }
 	public function getCombined ($evtid) {
-		$file = MUSICROOT . "/combined/$evtid.pdf";
-		if (file_exists ($file)) return $file;
-		else return "";
+		$found = [];
+		$file = MUSICROOT . "/combined/$evtid.M.pdf";
+		if (file_exists ($file)) $found[] = DOCROOT . "/combined/$evtid.M.pdf";
+		$file = MUSICROOT . "/combined/$evtid.V.pdf";
+		if (file_exists ($file)) $found[] = DOCROOT . "/combined/$evtid.V.pdf";
+
+		return json_encode ($found);
 	}
 }
 

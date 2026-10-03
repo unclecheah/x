@@ -50,7 +50,7 @@ class Unclecheah {
 
 			else if ($data['action'] == 'files_getDetails')		echo $gFiles->getDetails ($data['hymns']);
 			else if ($data['action'] == 'files_getAllHymns')	echo $gFiles->getAllHymns ();
-			else if ($data['action'] == 'files_combine')		echo $gFiles->combine ($data['hymns'], $data['evtid']);
+			else if ($data['action'] == 'files_combine')		echo $gFiles->combine ($data['hymns'], $data['evtid'], $data['vm']);
 			else if ($data['action'] == 'files_getCombined')	echo $gFiles->getCombined ($data['evtid'] ?? null);
 
 		} else {

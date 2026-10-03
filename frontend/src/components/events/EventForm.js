@@ -8,7 +8,8 @@ import FloatingField from '../ui/FloatingField';
 export default class EventForm {
 	static nextId = 0;
 
-	constructor() {
+	constructor({ purpose = 'event' } = {}) {
+		this.purpose = purpose;
 		this.id = `event-form-${++EventForm.nextId}`;
 		this.mode = 'add';
 		this.event = null;
@@ -68,10 +69,15 @@ export default class EventForm {
 		this.$element.appendTo(document.body);
 		this.modal = new Modal(this.$element[0], { backdrop: 'static', keyboard: true });
 
-		this.createDetails ();
-		this.createRoles ();
-		this.createHymns ();
-		this.bindEvents ();
+		if (this.purpose === 'combine') {
+			this.createCombineOptions();
+		} else {
+			this.createDetails();
+			this.createRoles();
+		}
+
+		this.createHymns();
+		this.bindEvents();
 	}
 
 	createDetails() {
@@ -212,6 +218,29 @@ export default class EventForm {
 				if (oldIndex !== newIndex) this.announceHymnPosition($(item));
 			}
 		});
+	}
+
+	createCombineOptions() {
+		const $section = $('<fieldset>', { class: 'event-form__section event-form__combine-options' });
+		const $legend = $('<legend>', { class: 'event-form__section-title', text: 'Score for' });
+		const $choices = $('<div>', { class: 'event-form__combine-choices' });
+
+		[{ value: 'V', label: 'Vocals' }, { value: 'M', label: 'Musician' }].forEach(({ value, label }) => {
+			const $input = $('<input>', {
+				type: 'radio',
+				name: `${this.id}-vm`,
+				value,
+				class: 'ui-focus',
+				required: true
+			});
+
+			$choices.append(
+				$('<label>', { class: 'btn ui-button event-form__combine-choice' }).append($input, $('<span>', { text: label }))
+			);
+		});
+
+		this.$vmInputs = $choices.find('input');
+		this.$body.append($section.append($legend, $choices));
 	}
 
 	addRole(data = {}, { focus = false } = {}) {
@@ -359,6 +388,36 @@ export default class EventForm {
 		this.$form.on('submit.eventForm', (event) => {
 			event.preventDefault();
 
+			if (this.isSaving) return;
+			if (!this.$form[0].reportValidity()) return;
+
+			this.clearError();
+
+			if (this.purpose === 'combine') {
+				const rows = this.getHymns();
+				const vm = this.$vmInputs.filter(':checked').val();
+
+				if (!rows.length) {
+					this.showError('Add at least one hymn to combine.');
+					this.$addHymn[0].focus();
+					return;
+				}
+
+				if (rows.some(row => !row.hymntype || !row.hymn)) {
+					this.showError('Enter a hymn type and hymn for every row.');
+					return;
+				}
+
+				if (vm !== 'V' && vm !== 'M') {
+					this.showError('Choose Vocals or Musician.');
+					return;
+				}
+
+				this.$element.trigger('event-form:combine', [{ evtid: this.event.id, vm, hymns: rows.map(row => row.hymn) }]);
+
+				return;
+			}
+
 			this.$element.trigger('event-form:submit', [{
 				mode: this.mode,
 				event: this.event,
@@ -369,18 +428,38 @@ export default class EventForm {
 			}]);
 		});
 
-		this.$element[0].addEventListener('hide.bs.modal', (event) => { if (this.isSaving) event.preventDefault(); });
+		this.$element[0].addEventListener('hide.bs.modal', (event) => {
+			if (this.isSaving) event.preventDefault();
+		});
+
+		this.$element[0].addEventListener('shown.bs.modal', () => {
+			if (this.purpose === 'combine') this.$vmInputs.filter(':checked')[0]?.focus();
+		});
 	}
 
 	show({ event = null, date = '' } = {}) {
-		this.mode = event === null ? 'add' : 'edit';
+		if (this.isSaving) return this;
+
+		if (this.purpose === 'combine' && event?.id == null) {
+			throw new TypeError('Combining hymns requires an event ID.');
+		}
+
+		this.mode = this.purpose === 'combine' ? 'combine' : (event === null ? 'add' : 'edit');
 		this.event = event === null ? null : structuredClone(event);
 		this.date = date;
 
-		this.clearError ();
-		this.$title.text(this.mode === 'add' ? 'Add event' : 'Edit event');
-		this.populateDetails();
-		this.populateRoles();
+		this.clearError();
+
+		if (this.mode === 'combine') {
+			this.$title.text('Combine hymns');
+			this.$vmInputs.prop('checked', false);
+			this.$vmInputs.filter('[value="V"]').prop('checked', true);
+		} else {
+			this.$title.text(this.mode === 'add' ? 'Add event' : 'Edit event');
+			this.populateDetails();
+			this.populateRoles();
+		}
+
 		this.populateHymns();
 		this.modal.show();
 
@@ -534,9 +613,13 @@ export default class EventForm {
 		this.isSaving = busy === true;
 
 		this.$form.find('input, textarea, select, button').prop('disabled', this.isSaving);
-		this.$submit.text(this.isSaving ? 'Saving…' : 'Submit');
-		this.roleSortable.option('disabled', this.isSaving);
-		this.hymnSortable.option('disabled', this.isSaving);
+
+		const busyText = this.purpose === 'combine' ? 'Combining…' : 'Saving…';
+
+		this.$submit.text(this.isSaving ? busyText : 'Submit');
+
+		this.roleSortable?.option('disabled', this.isSaving);
+		this.hymnSortable?.option('disabled', this.isSaving);
 	}
 
 	clearError() {

@@ -1,11 +1,14 @@
 import $ from 'jquery';
 
 export default class AppController {
-	constructor({ auth, mainScreen, eventAccordion, eventForm, confirmDialog, footer, services, target = '#app' }) {
+	constructor({ auth, mainScreen, eventAccordion, eventForm, combineForm, confirmDialog, footer, services, target = '#app' }) {
 		this.auth = auth;
 		this.mainScreen = mainScreen;
 		this.eventAccordion = eventAccordion;
 		this.eventForm = eventForm;
+		this.combineForm = combineForm;
+		this.combineFormRevision = 0;
+		this.isCombining = false;
 		this.footer = footer;
 		this.services = services;
 		this.$target = $(target);
@@ -72,10 +75,17 @@ export default class AppController {
 		this.eventAccordion.$element.on('event:delete', (event, data) => { this.requestDeleteEvent(data.event); });
 		this.confirmDialog.$element.on('confirm:yes', () => { void this.deleteEvent(); });
 		this.confirmDialog.$element.on('confirm:closed', () => { this.pendingDelete = null; });
-
-		this.eventAccordion.$element.on('event:combine-hymns', (event, { eventId }) => {
-			console.log('[Event action]', event.type, eventId);
+		this.eventAccordion.$element.on('event:combine-hymns', (event, { event: selectedEvent }) => {
+			void this.openCombineForm(selectedEvent);
 		});
+		this.combineForm.$element.on('event-form:combine', (event, data) => {
+			void this.combineHymns(data);
+		});
+		this.combineForm.$element[0].addEventListener('hidden.bs.modal', () => { this.combineFormRevision++; });
+
+		// this.eventAccordion.$element.on('event:combine-hymns', (event, { eventId }) => {
+		// 	console.log('[Event action]', event.type, eventId);
+		// });
 		// this.eventForm.$element.on('event-form:submit', (event, data) => {
 		// 	console.log('[Event form submit]', {
 		// 		mode: data.mode,
@@ -122,9 +132,59 @@ export default class AppController {
 		}
 	}
 
+	async openCombineForm(event) {
+		if (
+			!this.isAuthenticated ||
+			!this.eventAccordion.isAdmin ||
+			this.isCombining ||
+			this.isSavingEvent ||
+			this.isDeletingEvent
+		) {
+			return;
+		}
+
+		const revision = ++this.combineFormRevision;
+		const sessionRevision = this.sessionRevision;
+
+		const isCurrent = () => (
+			revision === this.combineFormRevision &&
+			sessionRevision === this.sessionRevision &&
+			this.isAuthenticated
+		);
+
+		try {
+			this.combineForm.show({ event });
+			this.combineForm.setHymnOptions([], []);
+			this.combineForm.setHymnOptionsStatus('Loading suggestions…');
+
+			const [types, hymns] = await Promise.all([
+				this.services.files.getHymnTypes(),
+				this.services.files.getAllHymns()
+			]);
+
+			if (!isCurrent()) return;
+
+			this.combineForm.setHymnOptions(types, hymns);
+			this.combineForm.setHymnOptionsStatus();
+		} catch (error) {
+			if (!isCurrent()) return;
+
+			console.error('[AppController] Combine form:', error);
+
+			this.combineForm.setHymnOptionsStatus(
+				'Unable to load suggestions. You can still type entries manually.',
+				true
+			);
+		}
+	}
+
 	async handleSessionChanged(active) {
 		const revision = ++this.sessionRevision;
 		this.isAuthenticated = active === true;
+		this.combineFormRevision++;
+		this.isCombining = false;
+		this.combineForm.setSaving(false);
+		this.combineForm.hide();
 		this.eventForm.setSaving (false);
 		this.eventForm.hide ();
 		this.pendingDelete = null;
@@ -188,11 +248,23 @@ export default class AppController {
 			// );
 			const detailedEvents = await Promise.all(
 				events.map(async (event) => {
-					const [colour, roles, hymns] = await Promise.all([
+					const [colour, roles, hymns, combinedResult] = await Promise.all([
 						this.services.db.getLitClr(event.title),
 						this.services.db.getRoles(event.id),
-						this.services.db.getHymns(event.id)
+						this.services.db.getHymns(event.id),
+						this.services.files.getCombined({ evtid: event.id })
 					]);
+
+					const combinedUrls = typeof combinedResult === 'string' ? JSON.parse(combinedResult) : combinedResult;
+
+					if (!Array.isArray(combinedUrls) || !combinedUrls.every(url => typeof url === 'string')) {
+						throw new TypeError('getCombined() must return an array of URLs.');
+					}
+
+					const combinedScores = {
+						vocals: combinedUrls.find(url => /\.V\.pdf$/i.test(url)) ?? '',
+						musicians: combinedUrls.find(url => /\.M\.pdf$/i.test(url)) ?? ''
+					};
 
 					if (!Array.isArray(roles) || !Array.isArray(hymns)) {
 						throw new TypeError('getRoles() and getHymns() must return arrays.');
@@ -219,7 +291,7 @@ export default class AppController {
 						})
 					);
 
-					return { ...event, colour, roles, hymns: hymnsWithMedia };
+					return { ...event, colour, roles, hymns: hymnsWithMedia, combinedScores };
 				})
 			);
 
@@ -360,6 +432,49 @@ export default class AppController {
 		} finally {
 			this.isSavingEvent = false;
 			if (isCurrentSession()) this.eventForm.setSaving(false);
+		}
+	}
+
+	async combineHymns(data) {
+		if (
+			!this.isAuthenticated ||
+			!this.eventAccordion.isAdmin ||
+			this.isCombining ||
+			this.isSavingEvent ||
+			this.isDeletingEvent
+		) {
+			return;
+		}
+
+		const sessionRevision = this.sessionRevision;
+
+		this.isCombining = true;
+		this.combineForm.clearError();
+		this.combineForm.setSaving(true);
+
+		try {
+			const result = await this.services.files.combine({ evtid: data.evtid, vm: data.vm, hymns: [...data.hymns]});
+
+			if (result === false) throw new Error('The file service could not combine the hymns.');
+
+			if (sessionRevision !== this.sessionRevision || !this.isAuthenticated) return;
+
+			this.combineForm.setSaving(false);
+			this.combineForm.hide();
+
+			await this.loadEvents({ expandedEventId: data.evtid});
+
+		} catch (error) {
+			if (sessionRevision !== this.sessionRevision || !this.isAuthenticated) return;
+
+			console.error('[AppController] Combine hymns:', error);
+			this.combineForm.showError('Unable to combine the hymns. Please try again.');
+
+		} finally {
+			if (sessionRevision === this.sessionRevision) {
+				this.isCombining = false;
+				this.combineForm.setSaving(false);
+			}
 		}
 	}
 

@@ -79,6 +79,7 @@ class TestFiles {
 		data['action'] = 'files_combine';         //  insert, update, delete
 		data['hymns'] = ['To Rescue A Sinner Like Me', 'All The Ends Of The Earth [BB554; bb582]'];
 		data['evtid'] = '987';
+		data['vm'] = 'V';
 
 		var output = await gFiles.combine (data);
 		console.log (output);
@@ -87,7 +88,7 @@ class TestFiles {
 	getCombined = async () => {
 		var data = {};
 		data['action'] = 'files_getCombined';         //  insert, update, delete
-		data['evtid'] = '987';
+		data['evtid'] = '517';
 
 		this.#combined = await gFiles.getCombined (data);
 		this.upd ();

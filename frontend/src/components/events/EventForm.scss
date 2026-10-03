@@ -226,6 +226,37 @@
 		min-width: 0;
 		text-align: left;
 	}
+
+	&__combine-options {
+		margin: 0;
+		padding: 0;
+		border: 0;
+
+		legend {
+			float: none;
+			width: auto;
+			margin-bottom: 12px;
+		}
+	}
+
+	&__combine-choices {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+
+	&__combine-choice {
+		min-height: 44px;
+		gap: 10px;
+		cursor: pointer;
+
+		input {
+			width: 18px;
+			height: 18px;
+			margin: 0;
+			accent-color: var(--ui-accent);
+		}
+	}
 }
 
 @media (max-width: 767.98px) {

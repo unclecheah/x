@@ -474,6 +474,31 @@
 	&__media-empty {
 		color: var(--ui-muted);
 	}
+
+	&__combined-scores {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	&__combined-score {
+		--bs-btn-padding-x: 14px;
+		--bs-btn-padding-y: 9px;
+		--bs-btn-border-radius: var(--ui-radius-small);
+
+		min-height: 44px;
+		gap: 10px;
+		font-size: 0.875rem;
+
+		.bi-file-earmark-pdf {
+			font-size: 1.125rem;
+		}
+
+		.bi-box-arrow-up-right {
+			font-size: 0.75rem;
+			color: var(--ui-muted);
+		}
+	}
 }
 
 @media (max-width: 575.98px) {
@@ -607,6 +632,10 @@
 
 			--bs-btn-padding-x: 10px;
 		}
+
+		&__combined-score {
+			flex: 1 1 180px;
+		}
 	}
 }
 
@@ -646,6 +675,10 @@
 
 		&__media:has(> .event-accordion__media-empty) {
 			display: none;
+		}
+
+		&__combined-score {
+			flex: 1 1 180px;
 		}
 	}
 }
