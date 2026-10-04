@@ -428,8 +428,42 @@ export default class EventForm {
 			}]);
 		});
 
-		this.$element[0].addEventListener('hide.bs.modal', (event) => {
-			if (this.isSaving) event.preventDefault();
+		const element = this.$element[0];
+
+		element.addEventListener('show.bs.modal', () => {
+			const active = document.activeElement;
+
+			this.returnFocus = (active instanceof HTMLElement && !element.contains(active)) ? active : null;
+		});
+
+		element.addEventListener('hide.bs.modal', (event) => {
+			if (this.isSaving) {
+				event.preventDefault();
+				return;
+			}
+
+			if (event.defaultPrevented) return;
+
+			const active = document.activeElement;
+
+			if (active instanceof HTMLElement && element.contains(active)) { active.blur(); }
+		});
+
+		element.addEventListener('hidden.bs.modal', () => {
+			const target = this.returnFocus;
+			this.returnFocus = null;
+
+			// Another modal may have opened after a session change.
+			if (document.querySelector('.modal.show')) return;
+
+			if (
+				target?.isConnected &&
+				$(target).is(':visible') &&
+				!target.matches(':disabled, [aria-disabled="true"]') &&
+				!target.closest('[inert], [aria-hidden="true"]')
+			) {
+				target.focus({ preventScroll: true });
+			}
 		});
 
 		this.$element[0].addEventListener('shown.bs.modal', () => {

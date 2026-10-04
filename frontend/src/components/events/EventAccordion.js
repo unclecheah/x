@@ -10,6 +10,7 @@ export default class EventAccordion {
 	constructor({ events = [] } = {}) {
 		this.id = `event-accordion-${++EventAccordion.nextId}`;
 		this.collapses = [];
+		this.items = new Map();
 
 		this.$element = $('<div>', { class: 'event-accordion' });
 		// events.forEach((event, index) => { this.createItem(event, index); });
@@ -25,12 +26,63 @@ export default class EventAccordion {
 		const $header = this.createHeader({ event, headerId, panelId, expanded });
 
 		const $panel = $('<div>', { id: panelId, class: 'collapse', role: 'region', 'aria-labelledby': headerId }).toggleClass('show', expanded);
-		const $body = $('<div>', { class: 'event-accordion__body' });
+		// const $body = $('<div>', { class: 'event-accordion__body' });
 
+		// const note = String(event.note ?? '').trim();
+
+		// if (note) {
+		// 	const $note = $('<div>', { class: 'event-accordion__note' });
+		// 	const $label = $('<span>', { class: 'event-accordion__note-label' }).append(
+		// 		$('<i>', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }),
+		// 		$('<span>', { text: 'Note' })
+		// 	);
+
+		// 	$note.append($label, $('<p>', { class: 'event-accordion__note-text', text: note }));
+		// 	$body.append($note);
+		// }
+
+		// if (event.roles?.length) {
+		// 	$body.append(
+		// 		this.createDetailSection({ title: 'Roles', kind: 'roles', icon: 'bi-people',
+		// 			rows: event.roles, labelKey: 'role', valueKey: 'person'
+		// 		})
+		// 	);
+		// }
+
+		// if (event.hymns?.length) {
+		// 	$body.append(
+		// 		this.createDetailSection({ title: 'Hymns', kind: 'hymns', icon: 'bi-music-note-beamed',
+		// 			rows: event.hymns, labelKey: 'hymntype', valueKey: 'hymn'
+		// 		})
+		// 	);
+		// }
+
+		// const $combinedScores = this.createCombinedScores(event);
+		// if ($combinedScores) $body.append($combinedScores);
+
+
+		// $panel.append($body, this.createActions(event));
+		$item.append($header, $panel);
+		this.$element.append($item);
+
+		const collapse = new Collapse($panel[0], { toggle: false, parent: this.$element[0] });
+		const $button = $header.find('button');
+
+		$button.on('click', () => { this.$element.trigger('event:request-open', [{ eventId: event.id }]); });
+		$panel[0].addEventListener('show.bs.collapse', () => { this.setHeaderExpanded($button, true); });
+		$panel[0].addEventListener('hide.bs.collapse', () => { this.setHeaderExpanded($button, false); });
+
+		this.collapses.push(collapse);
+		this.items.set(String(event.id), { event, $item, $panel, $button, collapse, detailsLoaded: false });
+	}
+
+	createBody(event) {
+		const $body = $('<div>', { class: 'event-accordion__body' });
 		const note = String(event.note ?? '').trim();
 
 		if (note) {
 			const $note = $('<div>', { class: 'event-accordion__note' });
+
 			const $label = $('<span>', { class: 'event-accordion__note-label' }).append(
 				$('<i>', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }),
 				$('<span>', { text: 'Note' })
@@ -42,16 +94,26 @@ export default class EventAccordion {
 
 		if (event.roles?.length) {
 			$body.append(
-				this.createDetailSection({ title: 'Roles', kind: 'roles', icon: 'bi-people',
-					rows: event.roles, labelKey: 'role', valueKey: 'person'
+				this.createDetailSection({
+					title: 'Roles',
+					kind: 'roles',
+					icon: 'bi-people',
+					rows: event.roles,
+					labelKey: 'role',
+					valueKey: 'person'
 				})
 			);
 		}
 
 		if (event.hymns?.length) {
 			$body.append(
-				this.createDetailSection({ title: 'Hymns', kind: 'hymns', icon: 'bi-music-note-beamed',
-					rows: event.hymns, labelKey: 'hymntype', valueKey: 'hymn'
+				this.createDetailSection({
+					title: 'Hymns',
+					kind: 'hymns',
+					icon: 'bi-music-note-beamed',
+					rows: event.hymns,
+					labelKey: 'hymntype',
+					valueKey: 'hymn'
 				})
 			);
 		}
@@ -59,19 +121,31 @@ export default class EventAccordion {
 		const $combinedScores = this.createCombinedScores(event);
 		if ($combinedScores) $body.append($combinedScores);
 
+		return $body;
+	}
 
-		$panel.append($body, this.createActions(event));
-		$item.append($header, $panel);
-		this.$element.append($item);
+	setEventDetails(event) {
+		const key = String(event.id);
+		const item = this.items.get(key);
 
-		const collapse = new Collapse($panel[0], { toggle: false, parent: this.$element[0] });
-		const $button = $header.find('button');
+		if (!item) return false;
 
-		$button.on('click', () => { collapse.toggle(); });
-		$panel[0].addEventListener('show.bs.collapse', () => { this.setHeaderExpanded($button, true); });
-		$panel[0].addEventListener('hide.bs.collapse', () => { this.setHeaderExpanded($button, false); });
+		const detailedEvent = { ...item.event, ...event };
 
-		this.collapses.push(collapse);
+		// Build the replacement before removing the existing contents.
+		const $body = this.createBody(detailedEvent);
+		const $actions = this.createActions(detailedEvent);
+
+		item.$panel.find('audio').each((index, audio) => { audio.pause(); });
+		item.$panel.empty().append($body, $actions);
+
+		item.event = detailedEvent;
+		item.detailsLoaded = true;
+
+		const index = this.events.findIndex(current => String(current.id) === key);
+		if (index !== -1) this.events[index] = detailedEvent;
+
+		return true;
 	}
 
 	createDetailSection({ title, kind, icon, rows, labelKey, valueKey }) {
@@ -276,25 +350,69 @@ export default class EventAccordion {
 		return $links.children().length ? $links : null;
 	}
 
+	getEvent(eventId) {
+		return this.items.get(String(eventId))?.event ?? null;
+	}
+
+	isExpanded(eventId) {
+		const item = this.items.get(String(eventId));
+		return item?.$panel.hasClass('show') ?? false;
+	}
+
+	waitForPanel(panel) {
+		if (!panel.classList.contains('collapsing')) return Promise.resolve();
+
+		return new Promise((resolve) => {
+			const finished = (event) => {
+				if (event.target !== panel) return;
+
+				panel.removeEventListener('shown.bs.collapse', finished);
+				panel.removeEventListener('hidden.bs.collapse', finished);
+
+				resolve();
+			};
+
+			panel.addEventListener('shown.bs.collapse', finished);
+			panel.addEventListener('hidden.bs.collapse', finished);
+		});
+	}
+
+	async waitForTransitions() {
+		await Promise.all([...this.items.values()].map(item => this.waitForPanel(item.$panel[0])));
+	}
+
+	async setExpanded(eventId, expanded, isCurrent = () => true) {
+		const key = String(eventId);
+		const item = this.items.get(key);
+
+		if (!item) return false;
+
+		await this.waitForTransitions();
+
+		if (!isCurrent() || this.items.get(key) !== item) return false;
+		if (expanded && !item.detailsLoaded) return false;
+
+		if (expanded) item.collapse.show();
+		else item.collapse.hide();
+
+		await this.waitForTransitions();
+		return (isCurrent() && this.items.get(key) === item && this.isExpanded(eventId) === expanded);
+	}
+
 	getNextEvent(eventId) {
 		const index = this.events.findIndex((event) => String(event.id) === String(eventId));
 		return index >= 0 ? this.events[index + 1] ?? null : null;
 	}
 
-	setEvents(events, { expandedEventId = null } = {}) {
+	setEvents(events) {
+		this.clearItems();
 		this.events = [...events];
-		this.collapses.forEach((collapse) => { collapse.dispose(); });
-		this.collapses = [];
-		this.$element.empty();
 
-		const requestedIndex = expandedEventId == null
-			? 0
-			: this.events.findIndex((event) => String(event.id) === String(expandedEventId));
+		this.events.forEach((event, index) => { this.createItem(event, index, false); });
 
-		const expandedIndex = Math.max(0, requestedIndex);
-		this.events.forEach((event, index) => { this.createItem(event, index, index === expandedIndex); });
-
-		if (this.events.length === 0) this.$element.append($('<p>', { class: 'ui-copy', text: 'No events found for this date.' }));
+		if (this.events.length === 0) {
+			this.$element.append($('<p>', { class: 'ui-copy', text: 'No events found for this date.' }));
+		}
 
 		return this;
 	}
@@ -376,6 +494,23 @@ export default class EventAccordion {
 		return $actions;
 	}
 
+	async disposeItem(item) {
+		await this.waitForPanel(item.$panel[0]);
+		item.collapse.dispose();
+	}
+
+	clearItems() {
+		for (const item of this.items.values()) {
+			item.$panel.find('audio').each((index, audio) => { audio.pause(); });
+
+			void this.disposeItem(item);
+		}
+
+		this.items.clear();
+		this.collapses = [];
+		this.$element.empty();
+	}
+
 	mount(target) {
 		$(target).append(this.$element);
 
@@ -383,8 +518,7 @@ export default class EventAccordion {
 	}
 
 	destroy() {
-		this.collapses.forEach((collapse) => { collapse.dispose(); });
-		this.collapses = [];
+		this.clearItems();
 		this.$element.remove();
 	}
 }

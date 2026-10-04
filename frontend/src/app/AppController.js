@@ -21,6 +21,8 @@ export default class AppController {
 		this.isAuthenticated = false;
 		this.eventLoadRevision = 0;
 		this.pendingEventLoads = 0;
+		this.eventSelectionRevision = 0;
+		this.isLoadingEventList = false;
 		this.eventFormRevision = 0;
 		this.isSavingEvent = false;
 		this.confirmDialog = confirmDialog;
@@ -73,6 +75,7 @@ export default class AppController {
 		this.mainScreen.on('main:add-event', () => { void this.openEventForm(); });
 		this.eventAccordion.$element.on('event:edit', (event, data) => { void this.openEventForm(data.event); });
 		this.eventAccordion.$element.on('event:delete', (event, data) => { this.requestDeleteEvent(data.event); });
+		this.eventAccordion.$element.on('event:request-open', (event, { eventId }) => { void this.openEvent(eventId, { toggle: true }); });
 		this.confirmDialog.$element.on('confirm:yes', () => { void this.deleteEvent(); });
 		this.confirmDialog.$element.on('confirm:closed', () => { this.pendingDelete = null; });
 		this.eventAccordion.$element.on('event:combine-hymns', (event, { event: selectedEvent }) => {
@@ -193,6 +196,8 @@ export default class AppController {
 
 		// Invalidate requests belonging to the previous session state.
 		this.eventLoadRevision++;
+		this.eventSelectionRevision++;
+		this.isLoadingEventList = false;
 
 		this.clearError();
 		this.mainScreen.setUsername('');
@@ -279,11 +284,25 @@ export default class AppController {
 		return { ...event, roles, hymns: hymnsWithMedia, combinedScores };
 	}
 
-	async loadEvents({ expandedEventId = null } = {}) {
-		if (!this.isAuthenticated) return;
+	async openEvent(eventId, { toggle = false } = {}) {
+		if (!this.isAuthenticated || this.isLoadingEventList) return;
+
+		const event = this.eventAccordion.getEvent(eventId);
+		if (!event) return;
+
+		const selectionRevision = ++this.eventSelectionRevision;
+		const listRevision = this.eventLoadRevision;
+		const sessionRevision = this.sessionRevision;
 		const date = this.mainScreen.date;
-		if (!date) return;
-		const revision = ++this.eventLoadRevision;
+
+		const isCurrent = () => (
+			this.isAuthenticated &&
+			!this.isLoadingEventList &&
+			selectionRevision === this.eventSelectionRevision &&
+			listRevision === this.eventLoadRevision &&
+			sessionRevision === this.sessionRevision &&
+			date === this.mainScreen.date
+		);
 
 		this.clearError();
 		this.pendingEventLoads++;
@@ -291,34 +310,101 @@ export default class AppController {
 		try {
 			if (this.pendingEventLoads === 1) this.services.overlay.start();
 
-			const events = await this.services.db.getEvents(date);
-			if (revision !== this.eventLoadRevision || !this.isAuthenticated) return;
-			if (!Array.isArray(events)) throw new TypeError('getEvents() must return an array.');
+			await this.eventAccordion.waitForTransitions();
+			if (!isCurrent()) return;
 
-			// const colouredEvents = await Promise.all(
-			// 	events.map(async (event) => ({ ...event, colour: await this.services.db.getLitClr(event.title) }))
-			// );
-			const detailedEvents = await Promise.all(
-				events.map(async (event) => {
-					const [colour, details] = await Promise.all([
-						this.services.db.getLitClr(event.title),
-						this.loadEventDetails(event)
-					]);
+			// Clicking the currently open header closes it.
+			if (toggle && this.eventAccordion.isExpanded(eventId)) {
+				await this.eventAccordion.setExpanded(eventId, false, isCurrent);
 
-					return { ...details, colour };
-				})
-			);
+				return;
+			}
 
-			// Ignore results if the selected date or session has changed.
-			if (revision !== this.eventLoadRevision || !this.isAuthenticated) return;
-			this.eventAccordion.setEvents(detailedEvents, { expandedEventId });
+			// Keep the current body visible while fetching the next one.
+			const details = await this.loadEventDetails(event);
+			if (!isCurrent()) return;
+
+			await this.eventAccordion.waitForTransitions();
+			if (!isCurrent()) return;
+
+			if (!this.eventAccordion.setEventDetails(details)) return;
+			await this.eventAccordion.setExpanded(eventId, true, isCurrent);
 
 		} catch (error) {
-			if (revision !== this.eventLoadRevision || !this.isAuthenticated) return;
+			if (!isCurrent()) return;
+
+			this.showError('Unable to load this event. Please click its header to retry.', error);
+
+		} finally {
+			this.pendingEventLoads--;
+			if (this.pendingEventLoads === 0) this.services.overlay.stop();
+		}
+	}
+
+	async loadEvents({ expandedEventId = null } = {}) {
+		const revision = ++this.eventLoadRevision;
+
+		this.eventSelectionRevision++;
+		this.isLoadingEventList = false;
+
+		if (!this.isAuthenticated) return;
+
+		const date = this.mainScreen.date;
+
+		if (!date) {
+			this.eventAccordion.setEvents([]);
+			return;
+		}
+
+		const sessionRevision = this.sessionRevision;
+
+		const isCurrent = () => (
+			this.isAuthenticated &&
+			revision === this.eventLoadRevision &&
+			sessionRevision === this.sessionRevision &&
+			date === this.mainScreen.date
+		);
+
+		this.isLoadingEventList = true;
+		this.clearError();
+		this.pendingEventLoads++;
+
+		try {
+			if (this.pendingEventLoads === 1) this.services.overlay.start();
+
+			const events = await this.services.db.getEvents(date);
+			if (!isCurrent()) return;
+
+			if (!Array.isArray(events)) throw new TypeError('getEvents() must return an array.');
+
+			// Only header colours are fetched for the whole list.
+			const colouredEvents = await Promise.all(
+				events.map(async (event) => ({ ...event, colour: await this.services.db.getLitClr(event.title) }))
+			);
+
+			if (!isCurrent()) return;
+
+			this.eventAccordion.setEvents(colouredEvents);
+			this.isLoadingEventList = false;
+
+			// Preserve the requested selection after combine/delete.
+			const selectedEvent = (
+				expandedEventId == null
+					? null
+					: colouredEvents.find(event => String(event.id) === String(expandedEventId))
+			) ?? colouredEvents[0];
+
+			if (selectedEvent) await this.openEvent(selectedEvent.id);
+
+		} catch (error) {
+			if (!isCurrent()) return;
+
 			this.eventAccordion.setEvents([]);
 			this.showError('Unable to load events. Please select the date again to retry.', error);
 
 		} finally {
+			if (revision === this.eventLoadRevision) this.isLoadingEventList = false;
+
 			this.pendingEventLoads--;
 			if (this.pendingEventLoads === 0) this.services.overlay.stop();
 		}
