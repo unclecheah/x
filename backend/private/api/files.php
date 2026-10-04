@@ -170,25 +170,57 @@ class Files {
 		return json_encode($result, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 	}
 
-	public function linkExist ($hymn) {
-		$bk = $this->hymn2bk ($hymn);
+	// public function linkExist ($hymn) {
+	// 	$bk = $this->hymn2bk ($hymn);
+	// 	$path = MUSICROOT . "/recordings/$bk/$hymn.link";
+
+	// 	if (file_exists ($path)) {
+	// 		$contents = @file_get_contents ($path);
+	// 		if ($contents === false) return "";
+
+	// 		// Remove a UTF-8 byte-order mark, if present.
+	// 		$url = trim (preg_replace ('/^\xEF\xBB\xBF/', '', $contents));
+	// 		if (filter_var ($url, FILTER_VALIDATE_URL) === false) return "";
+
+	// 		$scheme = strtolower (parse_url ($url, PHP_URL_SCHEME) ?? "");
+	// 		if (!in_array ($scheme, ["http", "https"], true)) return "";
+
+	// 		return $url;
+	// 	}
+
+	// 	return "";
+	// }
+
+	public function linkExist($hymn): string {
+		$bk = $this->hymn2bk($hymn);
 		$path = MUSICROOT . "/recordings/$bk/$hymn.link";
 
-		if (file_exists ($path)) {
-			$contents = @file_get_contents ($path);
-			if ($contents === false) return "";
+		if (!is_file($path)) return json_encode([]);
 
-			// Remove a UTF-8 byte-order mark, if present.
-			$url = trim (preg_replace ('/^\xEF\xBB\xBF/', '', $contents));
-			if (filter_var ($url, FILTER_VALIDATE_URL) === false) return "";
+		$contents = @file_get_contents($path);
+		if ($contents === false) return json_encode([]);
 
-			$scheme = strtolower (parse_url ($url, PHP_URL_SCHEME) ?? "");
-			if (!in_array ($scheme, ["http", "https"], true)) return "";
+		// Remove a UTF-8 byte-order mark, if present.
+		$contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents);
 
-			return $url;
+		// Support Windows, Unix, and older Mac line endings.
+		$lines = preg_split('/\r\n|\n|\r/', $contents);
+		$urls = [];
+
+		foreach ($lines as $line) {
+			$url = trim($line);
+
+			if ($url === '') continue;
+			if (filter_var($url, FILTER_VALIDATE_URL) === false) continue;
+
+			$scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
+
+			if (!in_array($scheme, ['http', 'https'], true)) continue;
+
+			$urls[] = $url;
 		}
 
-		return "";
+		return json_encode($urls);
 	}
 
 	public function getDetails ($hymns) {

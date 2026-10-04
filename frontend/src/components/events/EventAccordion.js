@@ -153,7 +153,7 @@ export default class EventAccordion {
 			? hymn.recordings.filter((recording) => typeof recording?.url === 'string' && recording.url.trim() !== '')
 			: [];
 
-		const link = String(hymn.link ?? '').trim();
+		const links = Array.isArray(hymn.links) ? hymn.links : [];
 		const hymnName = String(hymn.hymn ?? '');
 
 		const $playback = $('<div>', { class: 'event-accordion__playback' });
@@ -223,24 +223,21 @@ export default class EventAccordion {
 			selectRecording(0);
 		}
 
-		if (link) {
+		links.forEach((link, index) => {
 			$playback.append(
-				$('<a>', {
-					class: 'event-accordion__external-link ui-focus', href: link, target: '_blank',
-					rel: 'noopener noreferrer', title: 'Open external link in a new tab',
-					'aria-label': `External link for ${hymnName} (opens in a new tab)`
+				$('<a>', { class: 'event-accordion__external-link ui-focus', href: link, target: '_blank',
+					rel: 'noopener noreferrer', title: `External link ${index + 1}: ${link}`,
+					'aria-label': `External link ${index + 1} for ${hymnName} (opens in a new tab)`
 				}).append(
 					$('<i>', { class: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' })
 				)
 			);
-		}
+		});
 
-		if (recordings.length > 0 || link) {
+		if (recordings.length > 0 || links.length > 0) {
 			$media.append($playback);
 		} else {
-			$media.append(
-				$('<span>', { class: 'event-accordion__media-empty', text: '—', 'aria-label': 'No media available' })
-			);
+			$media.append($('<span>', { class: 'event-accordion__media-empty', text: '—', 'aria-label': 'No media available' }));
 		}
 
 		return $media;

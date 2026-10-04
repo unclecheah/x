@@ -227,6 +227,58 @@ export default class AppController {
 		}
 	}
 
+	async loadEventDetails(event) {
+		const [roles, hymns, combinedResult] = await Promise.all([
+			this.services.db.getRoles(event.id),
+			this.services.db.getHymns(event.id),
+			this.services.files.getCombined({ evtid: event.id })
+		]);
+
+		if (!Array.isArray(roles) || !Array.isArray(hymns))
+			throw new TypeError('getRoles() and getHymns() must return arrays.');
+
+		const combinedUrls = typeof combinedResult === 'string' ? JSON.parse(combinedResult) : combinedResult;
+
+		if (!Array.isArray(combinedUrls) || !combinedUrls.every(url => typeof url === 'string'))
+			throw new TypeError('getCombined() must return an array of URLs.');
+
+		const combinedScores = {
+			vocals: combinedUrls.find(url => /\.V\.pdf$/i.test(url)) ?? '',
+			musicians: combinedUrls.find(url => /\.M\.pdf$/i.test(url)) ?? ''
+		};
+
+		const hymnsWithMedia = await Promise.all(
+			hymns.map(async (hymn) => {
+				const [score, recordingResponse, linkResponse] = await Promise.all([
+					this.services.files.scoreExist(hymn.hymn),
+					this.services.files.recordingExist(hymn.hymn),
+					this.services.files.linkExist(hymn.hymn)
+				]);
+
+				const recordingResult = typeof recordingResponse === 'string' ? JSON.parse(recordingResponse) : recordingResponse;
+
+				const recordings = recordingResult?.found === true && Array.isArray(recordingResult.recordings)
+						? recordingResult.recordings
+						: [];
+
+				const linkResult = typeof linkResponse === 'string'
+					? JSON.parse(linkResponse.trim() || '[]')
+					: linkResponse;
+
+				if (!Array.isArray(linkResult)) throw new TypeError('linkExist() must return an array of URLs.');
+
+				const links = linkResult
+					.filter(link => typeof link === 'string')
+					.map(link => link.trim())
+					.filter(Boolean);
+
+				return { ...hymn, score, recordings, links };
+			})
+		);
+
+		return { ...event, roles, hymns: hymnsWithMedia, combinedScores };
+	}
+
 	async loadEvents({ expandedEventId = null } = {}) {
 		if (!this.isAuthenticated) return;
 		const date = this.mainScreen.date;
@@ -248,50 +300,12 @@ export default class AppController {
 			// );
 			const detailedEvents = await Promise.all(
 				events.map(async (event) => {
-					const [colour, roles, hymns, combinedResult] = await Promise.all([
+					const [colour, details] = await Promise.all([
 						this.services.db.getLitClr(event.title),
-						this.services.db.getRoles(event.id),
-						this.services.db.getHymns(event.id),
-						this.services.files.getCombined({ evtid: event.id })
+						this.loadEventDetails(event)
 					]);
 
-					const combinedUrls = typeof combinedResult === 'string' ? JSON.parse(combinedResult) : combinedResult;
-
-					if (!Array.isArray(combinedUrls) || !combinedUrls.every(url => typeof url === 'string')) {
-						throw new TypeError('getCombined() must return an array of URLs.');
-					}
-
-					const combinedScores = {
-						vocals: combinedUrls.find(url => /\.V\.pdf$/i.test(url)) ?? '',
-						musicians: combinedUrls.find(url => /\.M\.pdf$/i.test(url)) ?? ''
-					};
-
-					if (!Array.isArray(roles) || !Array.isArray(hymns)) {
-						throw new TypeError('getRoles() and getHymns() must return arrays.');
-					}
-
-					const hymnsWithMedia = await Promise.all(
-						hymns.map(async (hymn) => {
-							const [score, recordingResponse, link] = await Promise.all([
-								this.services.files.scoreExist(hymn.hymn),
-								this.services.files.recordingExist(hymn.hymn),
-								this.services.files.linkExist(hymn.hymn)
-							]);
-
-							const recordingResult = typeof recordingResponse === 'string'
-								? JSON.parse(recordingResponse)
-								: recordingResponse;
-
-							const recordings =
-								recordingResult?.found === true && Array.isArray(recordingResult.recordings)
-								? recordingResult.recordings
-								: [];
-
-							return { ...hymn, score, recordings, link };
-						})
-					);
-
-					return { ...event, colour, roles, hymns: hymnsWithMedia, combinedScores };
+					return { ...details, colour };
 				})
 			);
 
