@@ -1,5 +1,6 @@
 {
 	"maxEvents": 10,
+	"defaultUser": "ctk",
 	
 	"litClr": [
 		{

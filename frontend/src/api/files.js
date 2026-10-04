@@ -1,4 +1,12 @@
 class Files {
+	getDefaultUser = async () => {
+		var url = `/api/unclecheah.php?files_getDefaultUser`;
+
+		const resp = await fetch (url, {credentials: 'include'});
+		var data = await resp.text ();
+		return data;
+	}
+
 	getBgImages = async () => {
 		var url = `/api/unclecheah.php?files_bgImages`;
 

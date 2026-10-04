@@ -8,10 +8,10 @@ function testAuth () {
 	// echo $gAuth->chkDupEmail ('cheah@ieee.org');
 
 	$data = [
-		'username' => 'carol',
-		'display_name' => 'Carol',
-		'email' => 'carol@carol.com',
-		'password' => 'carol',
+		'username' => 'ctk',
+		'display_name' => 'CTK',
+		'email' => 'ctk@ctk.com',
+		'password' => 'ctk945',
 		'status' => 'active',
 		'role' => 'member'
 	];

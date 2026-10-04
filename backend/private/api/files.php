@@ -33,6 +33,11 @@ class Files {
 		self::$config = json_decode ($json, true, 512, JSON_THROW_ON_ERROR);
 	}
 
+	public function getDefaultUser () {
+		if (!self::$config) $this->loadConfig ();
+		return self::$config['defaultUser'];
+	}
+
 	public function getBgImages () {
 		$files = new RecursiveIteratorIterator (
 			new RecursiveDirectoryIterator (DATAROOT . "/images/background", FilesystemIterator::SKIP_DOTS)

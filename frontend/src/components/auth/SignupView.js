@@ -33,7 +33,7 @@ export default class SignupView {
 		const $header = $('<header>');
 
 		$('<h1>', { id: `${this.id}-title`, class: 'ui-title', text: 'Create an account' }).appendTo($header);
-		$('<p>', { class: 'ui-copy', text: 'A few details to join your church community.' }).appendTo($header);
+		$('<p>', { class: 'ui-copy', text: 'A few details to join CD choir.' }).appendTo($header);
 
 		return $header;
 	}

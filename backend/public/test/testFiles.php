@@ -5,6 +5,7 @@ function testFiles () {
 	global $gFiles;
 
 	// $gFiles->loadConfig ();
+	echo $gFiles->getDefaultUser ();
 	// echo $gFiles->getBgImages ();
 	// echo $gFiles->getHymnTypes ();
 	// echo $gFiles->hymn2Bk("Psalm [SPG123]");
@@ -16,7 +17,7 @@ function testFiles () {
 
 	// $hymns = ['In God Alone [BB624]', "Psalm - Anne's Wedding"];
 	// echo $gFiles->combine ($hymns, 998, 'V');
-	echo $gFiles->getCombined (517);
+	// echo $gFiles->getCombined (517);
 }
 
 testFiles ();

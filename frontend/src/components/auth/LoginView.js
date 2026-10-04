@@ -35,7 +35,7 @@ export default class LoginView {
 		const $header = $('<header>');
 
 		$('<h1>', { id: `${this.id}-title`, class: 'ui-title', text: 'Welcome back' }).appendTo($header);
-		$('<p>', { class: 'ui-copy', text: 'Sign in to your church community.' }).appendTo($header);
+		$('<p>', { class: 'ui-copy', text: 'Sign in to CD choir.' }).appendTo($header);
 
 		return $header;
 	}
@@ -138,6 +138,11 @@ export default class LoginView {
 		};
 	}
 
+	setDefaultUsername(username) {
+		// Preserve an existing username.
+		if (!this.usernameField.value.trim()) this.usernameField.value = username;
+	}
+
 	validate(values) {
 		if (!values.username) {
 			this.showError('Please enter your username.');
@@ -170,7 +175,6 @@ export default class LoginView {
 	}
 
 	focus() {
-		if (this.usernameField.value.trim()) this.passwordField.focus();
-		else this.usernameField.focus();
+		this.passwordField.focus();
 	}
 }

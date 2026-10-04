@@ -25,16 +25,38 @@ export default class AuthComponent {
 		this.isBusy = false;
 	}
 
-	async initialise({ auth, session, overlay }) {
-		this.services = { auth, session, overlay };
+	async initialise({ auth, session, overlay, files }) {
+		this.services = { auth, session, overlay, files };
+
 		this.bindAuthentication();
+
 		const active = await session.isactive();
 		this.setAuthenticated(active === true);
 
-		if (this.isAuthenticated) this.close();
-		else await this.open('login');
+		if (this.isAuthenticated) {
+			this.close();
+		} else {
+			await this.loadLoginDefaults();
+			await this.open('login');
+		}
 
 		return this.isAuthenticated;
+	}
+
+	async loadLoginDefaults() {
+		const loginView = this.views.login;
+
+		if (loginView.usernameField.value.trim()) return;
+
+		try {
+			const username = await this.services.files.getDefaultUser();
+
+			if (typeof username !== 'string') throw new TypeError('getDefaultUser() must return a username string.');
+			loginView.setDefaultUsername(username.trim());
+
+		} catch (error) {
+			console.error('[AuthComponent] Unable to load the default username:', error);
+		}
 	}
 
 	setAuthenticated(active) {
@@ -114,6 +136,7 @@ export default class AuthComponent {
 		}
 
 		this.clearFeedback('login');
+		await this.loadLoginDefaults ();
 		await this.open('login');
 
 		return true;

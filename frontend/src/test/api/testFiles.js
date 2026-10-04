@@ -4,6 +4,7 @@ import gFiles from '../../api/files.js';
 
 class TestFiles {
 	#bk = '';
+	#defaultUser = '';
 	#score = '';
 	#recording = '';
 	#recordingParts = '';
@@ -12,10 +13,16 @@ class TestFiles {
 
 	upd = async () => {
 		$("#bk").html (`bk: ${this.#bk}`);
+		$("#defaultUser").html (`defaultUser: ${this.#defaultUser}`);
 		$("#score").html (`score: ${this.#score}`);
 		$("#recording").html (`recording: ${this.#recording}`);
 		$("#link").html (`link: ${this.#link}`);
 		$("#combined").html (`combined: ${this.#combined}`);
+	}
+
+	getDefaultUser = async () => {
+		this.#defaultUser = await gFiles.getDefaultUser ();
+		this.upd ();
 	}
 
 	getBgImages = async () => {
@@ -30,7 +37,6 @@ class TestFiles {
 
 	hymn2bk = async () => {
 		this.#bk = await gFiles.hymn2bk ("Abide With Me [BB649; bb634]");
-		console.log ("here");
 		this.upd ();
 	}
 
@@ -99,10 +105,12 @@ class TestFiles {
 	run = async () => {
 		$('#app').append ('<main>');
 		$('main').append (`<p id="bk">bk: </p>`);
+		$('main').append (`<p id="defaultUser">defaultUser: </p>`);
 		$('main').append (`<p id="score">score: </p>`);
 		$('main').append (`<p id="recording">recording: </p>`);
 		$('main').append (`<p id="link">link: </p>`);
 		$('main').append (`<p id="combined">combined: </p>`);
+		$('main').append (`<button type="button" id="defUser" class="btn btn-primary">defUser</button>`);
 		$('main').append (`<button type="button" id="hymnTypes" class="btn btn-primary">hymnTypes</button>`);
 		$('main').append (`<button type="button" id="bgImages" class="btn btn-primary">bgImages</button>`);
 		$('main').append (`<button type="button" id="hymn2bk" class="btn btn-primary">hymn2bk</button>`);
@@ -114,6 +122,7 @@ class TestFiles {
 		$('main').append (`<button type="button" id="combine" class="btn btn-primary">combine</button>`);
 		$('main').append (`<button type="button" id="getCombined" class="btn btn-primary">getCombined</button>`);
 
+		$('#defUser').on ('click', () => this.getDefaultUser ());
 		$('#hymnTypes').on ('click', () => this.getHymnTypes ());
 		$('#bgImages').on ('click', () => this.getBgImages ());
 		$('#hymn2bk').on ('click', () => this.hymn2bk ());

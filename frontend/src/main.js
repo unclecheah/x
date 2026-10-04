@@ -77,18 +77,36 @@ import ConfirmDialog from './components/confirmDialog/ConfirmDialog.js';
 
 $(async () => {
 	const auth = new AuthComponent({
-		churchName: 'Church community',
+		churchName: 'Christus Dominus',
 
 		defaultUsername: '',
-		showRememberMe: true,
-		showForgotPassword: true,
-		showSignup: true
+		showRememberMe: false,
+		showForgotPassword: false,
+		showSignup: false
 	});
 
 	const mainScreen = new MainScreen();
 
 	// mainScreen.on('main:date-change', (event, { date }) => { console.log('[Main] Selected date:', date); });
 	mainScreen.on('main:add-event', () => { console.log('[Main] Add event requested'); });
+
+
+	const authModalElement = document.querySelector('.auth-modal');
+
+	authModalElement.addEventListener('hide.bs.modal', (event) => {
+		if (event.defaultPrevented) return;
+		const focusedElement = document.activeElement;
+
+		if (focusedElement instanceof HTMLElement && authModalElement.contains(focusedElement)) focusedElement.blur();
+	});
+
+	authModalElement.addEventListener('hidden.bs.modal', () => {
+		const dateInput = mainScreen.$date[0];
+
+		// Focus the main page only if it is mounted and visible.
+		if (dateInput?.isConnected && !dateInput.disabled && dateInput.getClientRects().length > 0)
+			dateInput.focus({ preventScroll: true });
+	});
 
 	const eventAccordion = new EventAccordion();
 	eventAccordion.mount(mainScreen.$events);

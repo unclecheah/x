@@ -1,6 +1,12 @@
 .auth-modal {
 	--bs-modal-width: 680px;
 
+	overflow-x: auto;
+
+	.modal-dialog {
+		min-width: 360px;
+	}
+
 	.modal-content {
 		display: grid;
 		grid-template-columns: 196px minmax(0, 1fr);
