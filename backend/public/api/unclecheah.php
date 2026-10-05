@@ -1,5 +1,4 @@
 <?php
-// include_once "../php/auth.php";
 include_once "../../private/api/auth.php";
 include_once "../../private/api/session.php";
 include_once "../../private/api/gcal.php";
@@ -24,7 +23,7 @@ class Unclecheah {
 	public function run () {
 		global $gSession, $gGCal, $gFiles, $gDB, $gAuth;
 
-		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {           //  POST, PUT, PATCH
+		if (in_array ($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {
 			$json = file_get_contents ('php://input');
 			$data = json_decode ($json, true);                                  //  $data is now json, $data['action'] = 'upd'
 

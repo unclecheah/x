@@ -23,6 +23,8 @@ export default class AuthComponent {
 		this.services = null;
 		this.isAuthenticated = false;
 		this.isBusy = false;
+
+		this.bindBackgroundReopen();
 	}
 
 	async initialise({ auth, session, overlay, files }) {
@@ -185,6 +187,52 @@ export default class AuthComponent {
 			this.isClosing = false;
 			this.views.changePassword.reset();
 			this.$events.trigger('auth:closed');
+		});
+	}
+
+	bindBackgroundReopen() {
+		const element = this.modal.$element[0];
+		let reopening = false;
+
+		const onBackgroundClick = async (event) => {
+			if (this.isAuthenticated || this.isBusy || this.isClosing || reopening) return;
+			if (!(event.target instanceof Element)) return;
+
+			// Leave modal controls, links, and other interactive elements alone.
+			const interactive = [
+				'.modal',
+				'.modal-backdrop',
+				'a',
+				'button',
+				'input',
+				'select',
+				'textarea',
+				'label',
+				'[role="button"]',
+				'[contenteditable]'
+			].join(', ');
+
+			if ($(event.target).closest(interactive).length) return;
+
+			reopening = true;
+
+			try {
+				await this.open('login');
+			} catch (error) {
+				console.error('[AuthComponent] Unable to reopen login:', error);
+			} finally {
+				reopening = false;
+			}
+		};
+
+		element.addEventListener('show.bs.modal', () => {
+			$(document).off('click.authBackground', onBackgroundClick);
+		});
+
+		element.addEventListener('hidden.bs.modal', () => {
+			$(document).off('click.authBackground', onBackgroundClick);
+
+			if (!this.isAuthenticated) $(document).on('click.authBackground', onBackgroundClick);
 		});
 	}
 

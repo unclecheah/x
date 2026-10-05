@@ -81,10 +81,7 @@ export default class LoginView {
 	createRememberMe() {
 		this.$remember = $('<input>', { type: 'checkbox', name: 'remember', class: 'ui-focus' });
 
-		return $('<label>', { class: 'ui-check' }).append(
-			this.$remember,
-			$('<span>', { text: 'Remember me' })
-		);
+		return $('<label>', { class: 'ui-check' }).append(this.$remember, $('<span>', { text: 'Remember me' }));
 	}
 
 	createForgotPassword() {
@@ -109,10 +106,7 @@ export default class LoginView {
 
 		this.$signup = $('<button>', { type: 'button', class: 'ui-link', text: 'Create an account' });
 
-		return $('<div>', { class: 'login-view__footer' }).append(
-			$('<span>', { text: 'New here?' }),
-			this.$signup
-		);
+		return $('<div>', { class: 'login-view__footer' }).append($('<span>', { text: 'New here?' }), this.$signup);
 	}
 
 	bindEvents() {

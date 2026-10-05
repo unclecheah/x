@@ -1,7 +1,7 @@
 class Db {
 	getEvents = async (date) => {
 		/*
-			d = 'yyyy-mm-dd hh:mm:ss'
+			input date = 'yyyy-mm-dd hh:mm:ss'
 
 			returns [{
 				id:         356,
@@ -9,7 +9,7 @@ class Db {
 				title:      "Event 123",
 				note:       "some note...",
 				timestamp:  "2026-01-01 10:30:00",
-				updated:    "2026-08-16:17:08:00"},
+				updated:    "2026-08-16 17:08:00"},
 			}, ...]
 		*/
 		var url = `/api/unclecheah.php?db_events&date=${date}`;
@@ -29,7 +29,7 @@ class Db {
 				title:      "Event 123",
 				note:       "some note...",
 				timestamp:  "2026-01-01 10:30:00",
-				updated:    "2026-08-16:17:08:00"},
+				updated:    "2026-08-16 17:08:00"},
 			}, ...]
 		*/
 		var url = `/api/unclecheah.php?db_event&eventid=${eventid}`;
@@ -41,7 +41,7 @@ class Db {
 
 	getRoles = async (eventid) => {
 		/*
-			eventID = 345
+			eventid = 345
 
 			return [{
 				eventid:	345,
@@ -59,7 +59,7 @@ class Db {
 
 	getHymns = async (eventid) => {
 		/*
-			eventID = 523
+			eventid = 523
 
 			returns [{
 				eventid:	345,
@@ -78,7 +78,7 @@ class Db {
 
 	getGCalEvtId = async (eventid) => {
 		/*
-			eventID = 523
+			eventid = 523
 
 			returns "q7..."
 		*/
@@ -91,7 +91,7 @@ class Db {
 
 	getLitClr = async (event) => {
 		/*
-			eventID = "3rd Sunday of Advent"
+			event = "3rd Sunday of Advent"
 
 			returns "fuchsia"
 		*/

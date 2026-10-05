@@ -69,8 +69,6 @@ class Files {
 			$match = preg_match ($regex, $hymn);
 			if ($match === 1) return $result;
 		}
-
-		// return "no match";
 	}
 
 	public function scoreExist ($hymn) {
@@ -79,40 +77,6 @@ class Files {
 		if (file_exists (MUSICROOT . "/scores/$bk/$hymn.pdf")) return DOCROOT . "/scores/$bk/$hymn.pdf";
 		else return "";
 	}
-
-	// public function recordingExist ($hymn) {
-	// 	//	TODO: to handle SATB
-	// 	$bk = $this->hymn2bk ($hymn);
-
-	// 	foreach (self::$config["audioExt"] as $ext) {
-	// 		if (file_exists (MUSICROOT . "/recordings/$bk/$hymn.$ext")) return DOCROOT . "/recordings/$bk/$hymn.$ext";
-	// 	}
-
-	// 	return "";
-	// }
-
-	// public function getRecordingParts(string $filename) {
-	// 	if (!self::$config) $this->loadConfig ();
-
-	// 	$extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-	// 	if (!in_array($extension, self::$config['audioExt'], true)) return json_encode([]);
-
-	// 	// Remove the extension, e.g. "Song1.S1A1.mp3" → "Song1.S1A1".
-	// 	$name = pathinfo($filename, PATHINFO_FILENAME);
-
-	// 	// Parts must appear after the final dot.
-	// 	$dotPosition = strrpos($name, '.');
-	// 	if ($dotPosition === false) return json_encode([]);
-
-	// 	$parts = strtoupper(substr($name, $dotPosition + 1));
-
-	// 	// Validate the entire suffix before extracting individual parts.
-	// 	if (!preg_match('/\A(?:[DSATB][12]?)+\z/', $parts)) return json_encode([]);
-
-	// 	preg_match_all('/[DSATB][12]?/', $parts, $matches);
-
-	// 	return json_encode($matches[0]);
-	// }
 
 	public function recordingExist($hymn): string {
 		$bk = $this->hymn2bk($hymn);
@@ -149,11 +113,7 @@ class Files {
 				$parts = [];
 
 				if (!empty($matches[1])) {
-					preg_match_all(
-						'/[SATB][12]?/',
-						strtoupper($matches[1]),
-						$partMatches
-					);
+					preg_match_all('/[SATB][12]?/', strtoupper($matches[1]), $partMatches);
 
 					$parts = $partMatches[0];
 				}
@@ -170,26 +130,6 @@ class Files {
 		return json_encode($result, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 	}
 
-	// public function linkExist ($hymn) {
-	// 	$bk = $this->hymn2bk ($hymn);
-	// 	$path = MUSICROOT . "/recordings/$bk/$hymn.link";
-
-	// 	if (file_exists ($path)) {
-	// 		$contents = @file_get_contents ($path);
-	// 		if ($contents === false) return "";
-
-	// 		// Remove a UTF-8 byte-order mark, if present.
-	// 		$url = trim (preg_replace ('/^\xEF\xBB\xBF/', '', $contents));
-	// 		if (filter_var ($url, FILTER_VALIDATE_URL) === false) return "";
-
-	// 		$scheme = strtolower (parse_url ($url, PHP_URL_SCHEME) ?? "");
-	// 		if (!in_array ($scheme, ["http", "https"], true)) return "";
-
-	// 		return $url;
-	// 	}
-
-	// 	return "";
-	// }
 
 	public function linkExist($hymn): string {
 		$bk = $this->hymn2bk($hymn);
@@ -296,11 +236,6 @@ class Files {
 		return json_encode (["status" => "success"]);
 	}
 
-	// public function getCombined ($evtid) {
-	// 	$file = MUSICROOT . "/combined/$evtid.pdf";
-	// 	if (file_exists ($file)) return $file;
-	// 	else return "";
-	// }
 	public function getCombined ($evtid) {
 		$found = [];
 		$file = MUSICROOT . "/combined/$evtid.M.pdf";

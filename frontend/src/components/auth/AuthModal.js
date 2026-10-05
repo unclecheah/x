@@ -4,7 +4,7 @@ import { Modal } from 'bootstrap';
 import './AuthModal.scss';
 
 export default class AuthModal {
-	constructor({ churchName = 'Church community', tagline = 'GATHER · SERVE · BELONG' } = {}) {
+	constructor({ churchName = 'Christus Dominus', tagline = 'GATHER · SERVE · BELONG' } = {}) {
 		this.$element = this.createElement();
 		this.$aside = this.createAside({ churchName, tagline });
 		this.$main = this.createMain();
@@ -125,9 +125,9 @@ export default class AuthModal {
 	getTransitionOptions() {
 		const styles = getComputedStyle(this.$element[0]);
 		const durationText = styles.getPropertyValue('--ui-duration').trim() || '380ms';
-		const easing = styles.getPropertyValue('--ui-easing').trim() || 'ease';
 		const durationValue = parseFloat(durationText);
 		const duration = durationText.endsWith('ms') ? durationValue : durationValue * 1000;
+		const easing = styles.getPropertyValue('--ui-easing').trim() || 'ease';
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 		return { duration: reduceMotion ? 0 : duration, easing, fill: 'both' };

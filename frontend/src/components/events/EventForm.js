@@ -623,9 +623,8 @@ export default class EventForm {
 
 	setHymnOptions(types, hymns) {
 		const normalise = (values, label) => {
-			if (!Array.isArray(values) || !values.every((value) => typeof value === 'string')) {
+			if (!Array.isArray(values) || !values.every((value) => typeof value === 'string'))
 				throw new TypeError(`${label} must be an array of strings.`);
-			}
 
 			return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 		};

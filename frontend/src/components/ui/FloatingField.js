@@ -50,7 +50,6 @@ export default class FloatingField {
 		const $label = $('<label>', { for: this.id, class: 'floating-field__label' });
 
 		if (this.options.icon) $('<i>', { class: 'bi', 'aria-hidden': 'true' }).addClass(this.options.icon).appendTo($label);
-
 		$('<span>', { text: this.options.label }).appendTo($label);
 
 		return $label;
@@ -71,7 +70,6 @@ export default class FloatingField {
 		if (this.$toggle) {
 			this.$toggle.on('click', () => {
 				const isHidden = this.$input.attr('type') === 'password';
-
 				this.setPasswordVisible(isHidden);
 			});
 		}

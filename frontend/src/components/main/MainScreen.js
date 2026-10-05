@@ -66,7 +66,7 @@ export default class MainScreen {
 
 	createMain() {
 		const $main = $('<main>', { class: 'main-screen__main' });
-		const $title = $('<h1>', { class: 'ui-title main-screen__title', text: 'Choir events' });
+		const $title = $('<h1>', { class: 'ui-title main-screen__title', text: 'CD Choir' });
 		this.$events = $('<div>', { class: 'main-screen__events' });
 
 		return $main.append($title, this.$events);

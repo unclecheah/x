@@ -69,8 +69,8 @@ export default class ChangePasswordView {
 
 		this.fields = [ this.currentPasswordField, this.newPasswordField, this.confirmPasswordField ];
 
-		return $('<div>', { class: 'ui-field-stack change-password-view__fields' }).append(
-			...this.fields.map(field => field.$element)
+		return $('<div>', { class: 'ui-field-stack change-password-view__fields' })
+			.append(...this.fields.map(field => field.$element)
 		);
 	}
 
@@ -129,21 +129,17 @@ export default class ChangePasswordView {
 	}
 
 	validate(values) {
-		if (!values.currentPassword) {
+		if (!values.currentPassword)
 			return this.rejectField(this.currentPasswordField, 'Please enter your current password.');
-		}
 
-		if (!values.newPassword) {
+		if (!values.newPassword)
 			return this.rejectField(this.newPasswordField, 'Please enter a new password.');
-		}
 
-		if (!values.confirmPassword) {
+		if (!values.confirmPassword)
 			return this.rejectField(this.confirmPasswordField, 'Please confirm your new password.');
-		}
 
-		if (values.newPassword !== values.confirmPassword) {
+		if (values.newPassword !== values.confirmPassword)
 			return this.rejectField(this.confirmPasswordField, 'Your new passwords do not match.');
-		}
 
 		return true;
 	}
@@ -163,7 +159,6 @@ export default class ChangePasswordView {
 
 	showSuccess(message) {
 		this.reset();
-
 		this.$feedback.addClass('ui-feedback--success').text(message);
 	}
 

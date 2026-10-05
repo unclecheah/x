@@ -39,14 +39,6 @@ class Files {
 		return data;
 	}
 
-	// getRecordingParts = async (data) => {
-	// 	var url = `/api/unclecheah.php?files_getRecordingParts&data=${data}`;
-
-	// 	const resp = await fetch (url, {credentials: 'include'});
-	// 	var data = await resp.json ();
-	// 	return data;
-	// }
-
 	linkExist = async (data) => {
 		var url = `/api/unclecheah.php?files_linkExist&data=${data}`;
 

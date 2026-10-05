@@ -28,8 +28,6 @@ export default class Background {
 	destroy() {
 		this.$element.remove();
 
-		if (!$('.random-background').length) {
-			$('body').removeClass('has-random-background');
-		}
+		if (!$('.random-background').length) $('body').removeClass('has-random-background');
 	}
 }

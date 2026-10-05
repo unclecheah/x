@@ -13,7 +13,6 @@ export default class EventAccordion {
 		this.items = new Map();
 
 		this.$element = $('<div>', { class: 'event-accordion' });
-		// events.forEach((event, index) => { this.createItem(event, index); });
 		this.isAdmin = false;
 		this.setEvents (events);
 	}
@@ -24,44 +23,9 @@ export default class EventAccordion {
 
 		const $item = $('<section>', { class: 'event-accordion__item' }).css('--event-colour', event.colour ?? 'var(--ui-border)');
 		const $header = this.createHeader({ event, headerId, panelId, expanded });
-
 		const $panel = $('<div>', { id: panelId, class: 'collapse', role: 'region', 'aria-labelledby': headerId }).toggleClass('show', expanded);
-		// const $body = $('<div>', { class: 'event-accordion__body' });
-
-		// const note = String(event.note ?? '').trim();
-
-		// if (note) {
-		// 	const $note = $('<div>', { class: 'event-accordion__note' });
-		// 	const $label = $('<span>', { class: 'event-accordion__note-label' }).append(
-		// 		$('<i>', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }),
-		// 		$('<span>', { text: 'Note' })
-		// 	);
-
-		// 	$note.append($label, $('<p>', { class: 'event-accordion__note-text', text: note }));
-		// 	$body.append($note);
-		// }
-
-		// if (event.roles?.length) {
-		// 	$body.append(
-		// 		this.createDetailSection({ title: 'Roles', kind: 'roles', icon: 'bi-people',
-		// 			rows: event.roles, labelKey: 'role', valueKey: 'person'
-		// 		})
-		// 	);
-		// }
-
-		// if (event.hymns?.length) {
-		// 	$body.append(
-		// 		this.createDetailSection({ title: 'Hymns', kind: 'hymns', icon: 'bi-music-note-beamed',
-		// 			rows: event.hymns, labelKey: 'hymntype', valueKey: 'hymn'
-		// 		})
-		// 	);
-		// }
-
-		// const $combinedScores = this.createCombinedScores(event);
-		// if ($combinedScores) $body.append($combinedScores);
 
 
-		// $panel.append($body, this.createActions(event));
 		$item.append($header, $panel);
 		this.$element.append($item);
 
@@ -235,9 +199,8 @@ export default class EventAccordion {
 		if (recordings.length > 0) {
 			const audioId = `${this.id}-audio-${++EventAccordion.nextAudioId}`;
 
-			const $audio = $('<audio>', {
-				id: audioId, class: 'event-accordion__audio', preload: 'none'
-			}).prop('controls', true);
+			const $audio = $('<audio>', { id: audioId, class: 'event-accordion__audio', preload: 'none' })
+				.prop('controls', true);
 
 			const audio = $audio[0];
 			const $partRow = $('<div>', { class: 'event-accordion__part-row' });
@@ -407,12 +370,10 @@ export default class EventAccordion {
 	setEvents(events) {
 		this.clearItems();
 		this.events = [...events];
-
 		this.events.forEach((event, index) => { this.createItem(event, index, false); });
 
-		if (this.events.length === 0) {
+		if (this.events.length === 0)
 			this.$element.append($('<p>', { class: 'ui-copy', text: 'No events found for this date.' }));
-		}
 
 		return this;
 	}
@@ -430,9 +391,7 @@ export default class EventAccordion {
 
 	getRecordingLabels(recording) {
 		const parts = Array.isArray(recording.parts)
-			? recording.parts
-				.map((part) => String(part).trim().toUpperCase())
-				.filter(Boolean)
+			? recording.parts.map((part) => String(part).trim().toUpperCase()).filter(Boolean)
 			: [];
 
 		if (parts.length === 0) {

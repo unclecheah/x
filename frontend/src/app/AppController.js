@@ -78,27 +78,10 @@ export default class AppController {
 		this.eventAccordion.$element.on('event:request-open', (event, { eventId }) => { void this.openEvent(eventId, { toggle: true }); });
 		this.confirmDialog.$element.on('confirm:yes', () => { void this.deleteEvent(); });
 		this.confirmDialog.$element.on('confirm:closed', () => { this.pendingDelete = null; });
-		this.eventAccordion.$element.on('event:combine-hymns', (event, { event: selectedEvent }) => {
-			void this.openCombineForm(selectedEvent);
-		});
-		this.combineForm.$element.on('event-form:combine', (event, data) => {
-			void this.combineHymns(data);
-		});
+		this.eventAccordion.$element.on('event:combine-hymns', (event, { event: selectedEvent }) => { void this.openCombineForm(selectedEvent); });
+		this.combineForm.$element.on('event-form:combine', (event, data) => { void this.combineHymns(data); });
 		this.combineForm.$element[0].addEventListener('hidden.bs.modal', () => { this.combineFormRevision++; });
 
-		// this.eventAccordion.$element.on('event:combine-hymns', (event, { eventId }) => {
-		// 	console.log('[Event action]', event.type, eventId);
-		// });
-		// this.eventForm.$element.on('event-form:submit', (event, data) => {
-		// 	console.log('[Event form submit]', {
-		// 		mode: data.mode,
-		// 		eventId: data.event?.id ?? null,
-		// 		date: data.date,
-		// 		details: data.details,
-		// 		roles: data.roles,
-		// 		hymns: data.hymns
-		// 	});
-		// });
 		this.eventForm.$element.on('event-form:submit', (event, data) => {
 			if (data.mode === 'add') void this.insertEvent(data);
 			else if (data.mode === 'edit') void this.updateEvent(data);

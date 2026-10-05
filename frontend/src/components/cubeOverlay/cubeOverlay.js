@@ -9,8 +9,6 @@ class CubeOverlay {
 		this.#active = 0;
 	}
 
-	// sleep = async (ms) => new Promise (r => setTimeout (r, ms));
-
 	start = async (options = {}) => {
 		this.#active ++;
 		if (this.#active > 1) return;
@@ -42,9 +40,7 @@ class CubeOverlay {
 
 		await new Promise(resolve => {
 			requestAnimationFrame(() => {
-				if (this.#active > 0) {
-					overlay.addClass('show');
-				}
+				if (this.#active > 0) overlay.addClass('show');
 
 				resolve();
 			});
