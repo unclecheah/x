@@ -282,7 +282,7 @@
 
 
 			//	data
-			$eventId = $data['gcalevtid'];
+			$eventId = $data['gcalid'];
 			$eventIdEnc = rawurlencode($eventId);       //  event id
 
 			$event = [];
@@ -333,7 +333,7 @@
 
 
 			//	data
-			$eventId = $data['gcalevtid'];
+			$eventId = $data['gcalid'];
 			$eventIdEnc = rawurlencode($eventId);            //  event id
 
 

@@ -6,7 +6,7 @@ function insert () {
 
 	$data = [];
 	$data['action'] = 'gcal_insert';    // insert, update, delete
-	$data['gcalevtid'] = '';
+	$data['gcalid'] = '';
 	$data['title'] = 'Test Event';
 	$data['timestamp'] = '2026-09-01T09:15';
 	$data['note'] = '';
@@ -40,12 +40,12 @@ function insert () {
 	echo $json->id;
 }
 
-function update ($gcalevtid) {
+function update ($gcalid) {
 	global $gGCal;
 
 	$data = [];
 	$data['action'] = 'gcal_update';    // insert, update, delete
-	$data['gcalevtid'] = $gcalevtid;
+	$data['gcalid'] = $gcalid;
 	$data['title'] = 'Test Event';
 	$data['timestamp'] = '2026-09-01T10:30';
 	$data['note'] = '';
@@ -84,7 +84,7 @@ function delete ($id) {
 
 	$data = [];
 	$data['action'] = 'gcal_delete';    // insert, update, delete
-	$data['gcalevtid'] = $id;
+	$data['gcalid'] = $id;
 
 	$result = $gGCal->delete ($data);
 	$json = json_decode($result);

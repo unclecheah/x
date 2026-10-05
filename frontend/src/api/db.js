@@ -76,7 +76,7 @@ class Db {
 		return data;
 	}
 
-	getGCalEvtId = async (eventid) => {
+	getGCalId = async (eventid) => {
 		/*
 			eventid = 523
 
@@ -123,7 +123,7 @@ class Db {
 
 			returns {
 				id:			523,
-				gcalevtid:	"q7..."
+				gcalid:		"q7..."
 			}
 		*/
 		data['action'] = 'db_insert';
@@ -163,7 +163,7 @@ class Db {
 
 			returns {
 				id:			523,
-				gcalevtid:	"q7..."
+				gcalid:		"q7..."
 			}
 		*/
 

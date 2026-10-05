@@ -9,7 +9,7 @@ function testDB () {
 	// echo $gDB->getEvent (351);
 	// echo $gDB->getRoles (200);
 	// echo $gDB->getHymns (200);
-	// echo $gDB->getGCalEvtId (351);
+	// echo $gDB->getGCalId (351);
 	echo $gDB->getLitClr ("3rd sunday of advent");
 
 	// $roles = [];

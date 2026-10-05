@@ -30,7 +30,7 @@ class TestDB {
 	}
 
 	getGCalId = async () => {
-		const gcalid = await gDB.getGCalEvtId (520);
+		const gcalid = await gDB.getGCalId (520);
 		console.log (gcalid);
 	}
 
@@ -42,7 +42,7 @@ class TestDB {
 	insert = async () => {
 		var data = {};
 		data['action'] = 'db_insert';         //  insert, update, delete
-		data['gcalevtid'] = '';
+		data['gcalid'] = '';
 		data['title'] = 'Test Event';
 		data['timestamp'] = '2026-09-01T09:15';
 		data['note'] = '';

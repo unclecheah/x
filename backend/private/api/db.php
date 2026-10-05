@@ -156,21 +156,21 @@ class DB {
 		return json_encode ($hymns);
 	}
 
-	public function getGCalEvtId ($eventID) {
+	public function getGCalId ($eventID) {
 		/*
 			eventID = 523
 
 			returns "q7..."
 		*/
 		global $choirDB;
-		$gcalevtid = array ();
+		// $gcalid = array ();
 
 		$q = self::$pdo->prepare ("select gcalid from events where id = :eventID");
 		$q->bindParam (":eventID", $eventID, PDO::PARAM_STR);
 		$q->execute ();
-		$gCalEvtId = $q->fetchColumn ();
+		$gCalId = $q->fetchColumn ();
 
-		return $gCalEvtId;
+		return $gCalId;
 	}
 
 
@@ -245,7 +245,7 @@ class DB {
 
 			returns {
 				id:			523,
-				gcalevtid:	"q7..."
+				gcalid:		"q7..."
 			}
 		*/
 
@@ -267,17 +267,17 @@ class DB {
 		$this->insertRoles ($id, $data["roles"]);
 		$this->insertHymns ($id, $data["hymns"]);
 
-		$gCalEvtId = $gGCal->insert ($data);
-		$gCalEvtId = json_decode ($gCalEvtId, true);
+		$gCalId = $gGCal->insert ($data);
+		$gCalId = json_decode ($gCalId, true);
 		$q = self::$pdo->prepare ("update events set gcalid = :gcalid where id = :id");
-		$q->bindValue (":gcalid",   $gCalEvtId['id'],	PDO::PARAM_STR);
-		$q->bindValue (":id",       $id,				PDO::PARAM_INT);
+		$q->bindValue (":gcalid",   $gCalId['id'],	PDO::PARAM_STR);
+		$q->bindValue (":id",       $id,			PDO::PARAM_INT);
 		$q->execute ();
 
 		//	return values
 		$retVal = [];
 		$retVal['id'] = $id;
-		$retVal['gcalevtid'] = $gCalEvtId;
+		$retVal['gcalid'] = $gCalId;
 		return json_encode($retVal);
 	}
 
@@ -303,7 +303,7 @@ class DB {
 
 			returns {
 				id:			523,
-				gcalevtid:	"q7..."
+				gcalid:		"q7..."
 			}
 		*/
 
@@ -322,12 +322,12 @@ class DB {
 		$this->insertRoles ($id, $data["roles"]);
 		$this->insertHymns ($id, $data["hymns"]);
 
-		$data["gcalevtid"] = $this->getGCalEvtId ($id);        //  may not need
+		$data["gcalid"] = $this->getGCalId ($id);        //  may not need
 		$gGCal->update ($data);
 
 		$retVal = [];
 		$retVal['id'] = $id;
-		$retVal['gcalevtid'] = $data["gcalevtid"];
+		$retVal['gcalid'] = $data["gcalid"];
 		return json_encode($retVal);
 	}
 
@@ -341,7 +341,7 @@ class DB {
 		*/
 		global $gGCal;
 
-		$gCalData = ["gcalevtid" => $this->getGCalEvtId ($data["id"])];                   //  delete gcal
+		$gCalData = ["gcalid" => $this->getGCalId ($data["id"])];                   //  delete gcal
 		$gGCal->delete ($gCalData);
 
 		$q = self::$pdo->prepare ("delete from events where id = :id");              //  delete event

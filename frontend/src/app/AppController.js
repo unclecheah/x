@@ -427,7 +427,7 @@ export default class AppController {
 			this.isAuthenticated;
 
 		const data = {
-			gcalevtid: '',
+			gcalid: '',
 			title: details.title,
 			timestamp: details.timestamp,
 			note: details.note,
