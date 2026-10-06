@@ -7,7 +7,7 @@ import gFooter from './components/footer/footer.js';
 import Background from './components/background/background.js'
 
 var images = await gFiles.getBgImages ();
-new Background ({images, directory: 'http://localhost:8081/images/background/'});
+new Background ({images, directory: '/data/images/background/'});
 
 // import ColourTheme from './ui/ColourTheme.js';
 // ColourTheme.restore ();
@@ -28,6 +28,8 @@ import EventAccordion from './components/events/EventAccordion';
 import EventForm from './components/events/EventForm';
 import ConfirmDialog from './components/confirmDialog/ConfirmDialog.js';
 
+// import gTestFiles from './test/api/testFiles.js';
+// gTestFiles.run ();
 
 
 $(async () => {
@@ -86,3 +88,4 @@ $(async () => {
 
 	await app.start();
 });
+

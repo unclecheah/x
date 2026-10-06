@@ -4,9 +4,13 @@ require_once __DIR__ . '/fpdf/fpdf.php';
 require_once __DIR__ . '/fpdi/src/autoload.php';
 use setasign\Fpdi\Fpdi;
 
-const DATAROOT = __DIR__ . "/../../../data";
-const MUSICROOT = DATAROOT . "/music";					//	<-- file path
-const DOCROOT = "/data/music";									//	<-- wrt $DOCUMENT_ROOT
+// const DATAROOT = __DIR__ . "/../../../data";
+// const MUSICROOT = DATAROOT . "/music";					//	<-- file path
+// const DOCROOT = "/data/music";									//	<-- wrt $DOCUMENT_ROOT
+
+define ("DATAROOT", rtrim($_SERVER["DOCUMENT_ROOT"], "/\\") . "/data");
+define ("MUSICROOT", DATAROOT . "/music");
+const DOCROOT = "/data/music";
 
 
 class Files {
