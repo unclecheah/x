@@ -1,9 +1,9 @@
 <?php
-include_once "../../private/api/auth.php";
-include_once "../../private/api/session.php";
-include_once "../../private/api/gcal.php";
-include_once "../../private/api/files.php";
-include_once "../../private/api/db.php";
+include_once "../../privateChoir/api/auth.php";
+include_once "../../privateChoir/api/session.php";
+include_once "../../privateChoir/api/gcal.php";
+include_once "../../privateChoir/api/files.php";
+include_once "../../privateChoir/api/db.php";
 
 class Unclecheah {
 	private static $instance = null;
