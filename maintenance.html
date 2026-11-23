@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#0b1522">
+	<title>A little tune-up · Christus Dominus Choir</title>
+	<style>
+		/* Change these variables to customise the page colours. */
+		:root {
+			color-scheme: dark;
+			--bg: #0b1522;
+			--text: #f5ecdc;
+			--muted: #aebccd;
+			--blue: #b0d9ff;
+			--gold: #ffc36b;
+		}
+		* { box-sizing: border-box; }
+		[hidden] { display: none !important; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			min-height: 100svh;
+			display: flex;
+			flex-direction: column;
+			color: var(--text);
+			background: radial-gradient(ellipse at 50% 45%, #182b3c 0, #0e1c2b 38%, var(--bg) 74%);
+			font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		}
+		button, a { -webkit-tap-highlight-color: transparent; }
+		button { font: inherit; }
+		.brand { text-align: center; padding: 42px 20px 0; }
+		.church { width: 40px; height: 48px; color: var(--text); }
+		.brand__name { margin-top: 8px; font: 20px/1.3 Georgia, serif; }
+		main { flex: 1; display: grid; place-content: center; padding: 18px 16px; }
+		.maintenance { width: min(960px, calc(100vw - 32px)); text-align: center; }
+		.stage { position: relative; height: 475px; isolation: isolate; }
+		.status { position: absolute; inset: 28px 0 auto; margin: 0; color: var(--gold); font-size: 10px; font-weight: 600; letter-spacing: .24em; }
+		.status::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-right: 12px; box-shadow: 0 0 16px #ffc36b44; }
+		h1 { position: absolute; top: 73px; left: 0; right: 0; margin: 0; font: 500 clamp(36px, 6.5vw, 70px)/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.04em; }
+		.heading { display: inline-block; transform-origin: 50% 50%; }
+		.message { position: absolute; top: 175px; left: 0; right: 0; margin: 0; color: #d5dce4; font-size: 16px; }
+		.message span { display: block; color: var(--muted); }
+		.floor { position: absolute; bottom: 20px; left: 8%; right: 8%; height: 1px; background: linear-gradient(90deg, transparent, #7793a22e, transparent); }
+		.retry {
+			position: absolute; top: 357px; left: 50%; transform: translateX(-50%);
+			display: inline-flex; align-items: center; justify-content: center; gap: 13px;
+			min-width: 176px; height: 54px; padding: 0 25px;
+			border: 1px solid #779ab8; border-radius: 9px;
+			color: #d8edff; background: #0b1929; text-decoration: none;
+			box-shadow: inset 0 1px 0 #ffffff09;
+			transition: background .2s, border-color .3s, box-shadow .3s;
+			z-index: 3;
+		}
+		.retry svg { width: 21px; height: 21px; }
+		.retry:hover { background: #16334a; border-color: var(--blue); }
+		.retry:focus-visible, .replay:focus-visible { outline: 3px solid var(--gold); outline-offset: 6px; }
+		.powered .retry { border-color: #b0daff; box-shadow: 0 0 22px #76bfff2b, inset 0 0 12px #77baff12; }
+		.actor { position: absolute; top: 0; left: 0; width: clamp(116px, 18vw, 154px); aspect-ratio: 180 / 230; z-index: 4; pointer-events: none; opacity: 0; will-change: transform; }
+		.actor svg { display: block; width: 100%; height: 100%; overflow: visible; }
+		.actor-shadow { position: absolute; width: 130px; height: 15px; border-radius: 50%; background: #0005; filter: blur(6px); pointer-events: none; }
+		.rig { transform-origin: 90px 175px; }
+		.eyes { transform-origin: 90px 90px; }
+		.idle .eyes { animation: blink 5.7s infinite; }
+		@keyframes blink { 0%, 43%, 47%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.08); } }
+		.rope-layer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
+		.rope { fill: none; stroke: #eab15c; stroke-width: 2; stroke-linecap: round; opacity: 0; }
+		.spark { position: absolute; width: 48px; height: 48px; pointer-events: none; z-index: 5; opacity: 0; }
+		.spark path { stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; }
+		.thanks { margin: 0; font-size: 14px; color: var(--muted); }
+		.replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 13px; padding: 8px 12px; border: 0; border-radius: 4px; background: transparent; color: #8c9fb3; cursor: pointer; font-size: 12px; }
+		.replay:hover { color: var(--text); }
+		.replay svg { width: 13px; height: 13px; }
+		footer { width: min(440px, calc(100% - 64px)); margin: 28px auto 0; padding: 18px 0 24px; border-top: 1px solid #a0b7c123; text-align: center; color: #8396aa; font: 13px Georgia, serif; }
+		@media (max-width: 540px) {
+			.brand { padding-top: 30px; }
+			.brand__name { font-size: 17px; }
+			.church { width: 33px; height: 40px; }
+			main { padding-top: 10px; }
+			.stage { height: 438px; }
+			.status { top: 23px; font-size: 9px; letter-spacing: .18em; }
+			h1 { top: 69px; }
+			.message { top: 142px; font-size: 13px; }
+			.retry { top: 326px; min-width: 158px; height: 50px; font-size: 14px; }
+			footer { margin-top: 24px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { animation: none !important; transition: none !important; }
+			.replay { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<header class="brand">
+		<svg class="church" viewBox="0 0 40 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<path d="M20 1v10m-4-6h8M13 46V20l7-10 7 10v26M13 26 5 32v14h30V32l-8-6M18 46V33a2 2 0 0 1 4 0v13M9 36v5m22-5v5"/><circle cx="20" cy="23" r="2"/>
+		</svg>
+		<div class="brand__name">Christus Dominus Choir</div>
+	</header>
+	<main>
+		<section class="maintenance" aria-labelledby="maintenance-title">
+			<div class="stage">
+				<p class="status">Under maintenance</p>
+				<h1 id="maintenance-title"><span class="heading">A little tune-up.</span></h1>
+				<p class="message">We’re taking a short pause to make things better.<span>Please check back soon.</span></p>
+				<div class="floor" aria-hidden="true"></div>
+				<!-- The link still reloads this page when JavaScript is unavailable. -->
+				<a class="retry" href="" aria-label="Try again: reload this page">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8a8 8 0 1 0 .4 7M20 3v5h-5"/></svg>
+					Try again
+				</a>
+				<svg class="rope-layer" aria-hidden="true"><path class="rope"/></svg>
+				<div class="actor-shadow" aria-hidden="true"></div>
+				<div class="actor" aria-hidden="true">
+					<!-- Original SVG puppet: separate joints allow genuine limb animation. -->
+					<svg viewBox="0 0 180 230" xmlns="http://www.w3.org/2000/svg">
+						<defs>
+							<linearGradient id="shell" x1="0" y1="0" x2=".8" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#fff8e5"/><stop offset=".55" stop-color="#e9d9b9"/><stop offset="1" stop-color="#b8a78d"/></linearGradient>
+							<linearGradient id="gold" x2=".7" y2="1"><stop stop-color="#ffdc83"/><stop offset=".55" stop-color="#f5b54c"/><stop offset="1" stop-color="#c97b32"/></linearGradient>
+							<linearGradient id="glass" x2=".8" y2="1"><stop stop-color="#2e4960"/><stop offset=".5" stop-color="#102437"/><stop offset="1" stop-color="#071321"/></linearGradient>
+							<filter id="eye-glow" x="-70%" y="-100%" width="240%" height="300%"><feGaussianBlur stdDeviation="2.1"/></filter>
+						</defs>
+						<g class="rig">
+							<g class="leg leg--back" transform="translate(108 170)"><circle r="11" fill="#25394a"/><g class="shin"><rect x="-10" y="2" width="22" height="31" rx="10" fill="url(#shell)" stroke="#aa9c86"/><path d="M-10 27Q1 24 13 29L20 40Q22 47 12 48H-9Q-15 46-13 39Z" fill="url(#shell)" stroke="#ad9d82"/><path d="M-11 44H17" stroke="#a99b83"/></g></g>
+							<g class="arm arm--back" transform="translate(113 137)"><circle r="11" fill="#263e50"/><rect x="-7" y="0" width="16" height="29" rx="8" fill="url(#shell)" stroke="#ac9d86"/><g class="forearm" transform="translate(0 27)"><circle r="7" fill="#263c4d"/><rect x="-7" y="0" width="15" height="24" rx="7" fill="url(#shell)"/><circle cy="25" r="9" fill="#334e63" stroke="#658399"/><path d="M-4 23 0 28 4 23" fill="none" stroke="#8299a8" stroke-width="2"/></g></g>
+							<rect x="77" y="115" width="24" height="17" rx="7" fill="#273e50"/>
+							<path d="M66 128Q88 117 111 128L115 151Q116 169 102 178H78Q60 170 62 151Z" fill="url(#shell)" stroke="#aa9b81" stroke-width="1.5"/>
+							<path d="M69 137Q87 145 106 135L107 151Q89 161 69 151Z" fill="#283f50"/>
+							<rect x="78" y="143" width="18" height="3" rx="1.5" fill="#a9dfff"/>
+							<circle cx="99" cy="164" r="3" fill="#ca913e"/>
+							<g class="leg leg--front" transform="translate(76 170)"><circle r="11" fill="#25394a"/><g class="shin"><rect x="-11" y="2" width="23" height="31" rx="10" fill="url(#shell)" stroke="#ad9e85"/><path d="M-10 27Q1 24 13 29L20 40Q22 47 12 48H-9Q-15 46-13 39Z" fill="url(#shell)" stroke="#ad9d82"/><path d="M-11 44H17" stroke="#a99b83"/></g></g>
+							<g class="head">
+								<path d="M42 64Q42 29 85 28Q129 25 142 64L143 91Q139 120 99 127Q51 132 41 101Z" fill="url(#shell)" stroke="#a79b87" stroke-width="1.5"/>
+								<ellipse cx="42" cy="87" rx="15" ry="22" fill="#cdbfa4" stroke="#998d79"/><ellipse cx="42" cy="87" rx="10" ry="16" fill="#294155"/><ellipse cx="40" cy="84" rx="5" ry="10" fill="#496579"/>
+								<path d="M61 69Q87 48 121 59Q136 65 135 87Q131 110 105 116Q76 123 60 108Q50 94 61 69Z" fill="url(#glass)" stroke="#fff0d3" stroke-width="3"/>
+								<path d="M70 68Q88 57 106 60" fill="none" stroke="#91aec0" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+								<g class="eyes" fill="none" stroke-linecap="round">
+									<path d="M72 91Q79 75 86 90M103 87Q111 71 118 85" stroke="#56bfff" stroke-width="9" filter="url(#eye-glow)"/>
+									<path d="M72 91Q79 75 86 90M103 87Q111 71 118 85" stroke="#c5f4ff" stroke-width="4"/>
+								</g>
+								<path d="M46 55Q44 16 82 12Q116 8 131 43L140 49Q92 41 46 62Z" fill="url(#gold)" stroke="#c38b40" stroke-width="1.5"/>
+								<path d="M82 13Q68 29 72 49M91 15Q106 26 110 45" fill="none" stroke="#bd833b" stroke-width="1.2"/>
+								<path d="M45 56Q95 36 144 43Q165 47 150 55Q111 61 94 58Q73 55 46 63Z" fill="url(#gold)" stroke="#bc803a" stroke-width="1.5"/>
+								<path d="M48 55Q62 21 84 18" fill="none" stroke="#ffe8a8" stroke-width="2" opacity=".65"/>
+								<ellipse cx="84" cy="12" rx="6" ry="3" fill="#ffe1a0"/>
+								<path d="M84 31v-8m-3 3h6m-9 16V33l6-5 6 5v8m-8 0v-5h4v5" fill="none" stroke="#8c602c" stroke-width="1.2" stroke-linejoin="round"/>
+							</g>
+							<g class="arm arm--front" transform="translate(64 138)"><circle r="11" fill="#304a5d" stroke="#8b9b9f"/><rect x="-9" y="0" width="20" height="30" rx="10" fill="url(#shell)" stroke="#b2a28a"/><g class="forearm" transform="translate(0 28)"><circle r="7" fill="#2a4356"/><rect x="-8" y="0" width="18" height="25" rx="8" fill="url(#shell)" stroke="#ae9f87"/><g class="hand"><path d="M-8 22Q-13 13-15 17Q-18 20-10 30L-7 35Q3 42 11 33L12 24Q10 17 6 22L5 27 1 22Q-2 18-4 23Z" fill="#35536a" stroke="#8198a7" stroke-width="1.2"/><path d="M-6 29 0 34m1-8 5 5" stroke="#8ca4b4" fill="none" stroke-linecap="round"/></g></g></g>
+						</g>
+					</svg>
+				</div>
+				<svg class="spark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 2v9m0 26v9M2 24h9m26 0h9M8 8l7 7m18 18 7 7M8 40l7-7m18-18 7-7"/></svg>
+			</div>
+			<p class="thanks">Thanks for your patience.</p>
+			<button class="replay" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 8a8 8 0 1 1-.4 7M4 3v5h5"/></svg>Replay the little repair</button>
+		</section>
+	</main>
+	<footer>Christus Dominus Choir</footer>
+	<script>
+		/* Everything lives in this class; no libraries, requests or build step. */
+		class MaintenanceScene {
+			constructor(root) {
+				this.root = root;
+				this.stage = root.querySelector('.stage');
+				this.actor = root.querySelector('.actor');
+				this.heading = root.querySelector('.heading');
+				this.retry = root.querySelector('.retry');
+				this.rope = root.querySelector('.rope');
+				this.spark = root.querySelector('.spark');
+				this.shadow = root.querySelector('.actor-shadow');
+				this.replay = root.querySelector('.replay');
+				this.motion = matchMedia('(prefers-reduced-motion: reduce)');
+				this.parts = Object.fromEntries(['rig', 'head', 'arm--front', 'arm--back', 'leg--front', 'leg--back'].map(name => [name, root.querySelector('.' + name)]));
+				this.armFront = this.parts['arm--front'].querySelector('.forearm');
+				this.armBack = this.parts['arm--back'].querySelector('.forearm');
+				this.retry.addEventListener('click', event => {
+					event.preventDefault();
+					window.location.reload();
+				});
+				this.replay.addEventListener('click', () => this.play());
+				this.motion.addEventListener('change', () => this.play());
+				this.observer = new ResizeObserver(() => {
+					this.measure();
+					this.render(this.elapsed || 0);
+				});
+				this.observer.observe(this.stage);
+				// Pause the animation clock when the page is in a background tab.
+				document.addEventListener('visibilitychange', () => { this.previous = null; });
+				this.measure();
+				this.play();
+			}
+			measure() {
+				const stage = this.stage.getBoundingClientRect();
+				const button = this.retry.getBoundingClientRect();
+				const scale = this.actor.offsetWidth / 180;
+				this.layout = {
+					w: stage.width, h: stage.height, s: scale,
+					bx: button.left - stage.left, by: button.top - stage.top, bw: button.width,
+					hx: (stage.width + this.heading.offsetWidth) / 2 - 10,
+					hy: this.heading.parentElement.offsetTop + this.heading.offsetHeight / 2,
+					ground: stage.height - 22 - 218 * scale
+				};
+			}
+			play() {
+				cancelAnimationFrame(this.frame);
+				this.elapsed = this.motion.matches ? 10 : 0;
+				this.previous = null;
+				this.replay.hidden = this.motion.matches;
+				this.render(this.elapsed);
+				if (!this.motion.matches) this.frame = requestAnimationFrame(time => this.tick(time));
+			}
+			tick(time) {
+				if (!document.hidden && this.previous !== null) this.elapsed += Math.min((time - this.previous) / 1000, .05);
+				this.previous = time;
+				if (!document.hidden) this.render(this.elapsed);
+				this.frame = requestAnimationFrame(next => this.tick(next));
+			}
+			mix(a, b, amount) { return a + (b - a) * amount; }
+			ease(value) { const t = Math.max(0, Math.min(1, value)); return t * t * (3 - 2 * t); }
+			pose(frontArm = 0, backArm = 0, frontLeg = 0, backLeg = 0, elbow = 0) {
+				this.parts['arm--front'].setAttribute('transform', `translate(64 138) rotate(${frontArm})`);
+				this.parts['arm--back'].setAttribute('transform', `translate(113 137) rotate(${backArm})`);
+				this.parts['leg--front'].setAttribute('transform', `translate(76 170) rotate(${frontLeg})`);
+				this.parts['leg--back'].setAttribute('transform', `translate(108 170) rotate(${backLeg})`);
+				this.armFront.setAttribute('transform', `translate(0 28) rotate(${elbow})`);
+				this.armBack.setAttribute('transform', 'translate(0 27) rotate(-15)');
+			}
+			render(t) {
+				const {w, s, bx, by, bw, hx, hy, ground} = this.layout;
+				const tugX = w - 180 * s - 10;
+				const pressX = Math.max(0, bx - 118 * s);
+				const seatX = Math.min(w - 170 * s, bx + bw - 47 * s);
+				const seatY = by - 174 * s;
+				let x = tugX, y = ground, lean = 0, tilt = -5, head = 0;
+				this.pose();
+				this.rope.style.opacity = '0';
+				this.spark.style.opacity = '0';
+				this.root.classList.toggle('powered', t >= 6.4);
+				this.actor.classList.toggle('idle', t >= 8.5);
+				if (t < 1.8) {
+					// Run onto the page, with alternating arm and leg swings.
+					x = this.mix(-190 * s, tugX, this.ease(t / 1.8));
+					y -= Math.abs(Math.sin(t * 15)) * 6;
+					lean = 8;
+					this.pose(Math.sin(t * 15) * 35, -Math.sin(t * 15) * 35, -Math.sin(t * 15) * 36, Math.sin(t * 15) * 36, -25);
+				} else if (t < 2.5) {
+					// Pause, look up, and reach for the heading.
+					head = -8 * this.ease((t - 1.8) / .4);
+					this.pose(95 * this.ease((t - 2) / .5), 15, 8, -8, 25);
+				} else if (t < 4.9) {
+					// The rope is connected to the real heading and the robot's hand.
+					const progress = this.ease((t - 2.5) / 2.1);
+					const effort = Math.sin((t - 2.5) * 13) * (1 - progress);
+					lean = -7 - effort * 3;
+					x -= 3 * effort;
+					head = -5;
+					tilt = -5 * (1 - progress) + effort * .45;
+					this.pose(95, 20, 12, -12, 25);
+					this.rope.style.opacity = String(Math.min(1, (t - 2.5) * 7, (4.9 - t) * 7));
+				} else if (t < 6.2) {
+					// Scoot over to the button.
+					tilt = 0;
+					x = this.mix(tugX, pressX, this.ease((t - 4.9) / 1.3));
+					y -= Math.abs(Math.sin(t * 16)) * 4;
+					lean = -7;
+					this.pose(Math.sin(t * 16) * 25, -Math.sin(t * 16) * 25, -Math.sin(t * 16) * 30, Math.sin(t * 16) * 30, -15);
+				} else if (t < 7) {
+					tilt = 0;
+					x = pressX;
+					this.pose(-76, -30, 10, -10, -18);
+					if (t >= 6.4) {
+						const flash = Math.max(0, 1 - (t - 6.4) / .55);
+						this.spark.style.opacity = String(flash);
+						this.spark.style.transform = `translate(${bx - 24}px, ${by - 8}px) scale(${1.6 - flash * .6})`;
+					}
+				} else if (t < 8.5) {
+					// One little hop onto the edge of the button.
+					const progress = this.ease((t - 7) / 1.5);
+					tilt = 0;
+					x = this.mix(pressX, seatX, progress);
+					y = this.mix(ground, seatY, progress) - Math.sin(progress * Math.PI) * 78;
+					this.pose(-35, 35, -22 * progress, -12 * progress, -20);
+				} else {
+					// Settle down, wave hello, and gently swing the feet.
+					tilt = 0;
+					x = seatX;
+					y = seatY;
+					const wave = !this.motion.matches && ((t - 8.5) % 12 < 2.6);
+					const sway = this.motion.matches ? 0 : Math.sin(t * 2) * 6;
+					this.pose(wave ? -142 + Math.sin(t * 12) * 12 : -10, 12, -15 + sway, -8 - sway, wave ? -20 : -8);
+				}
+				this.actor.style.opacity = '1';
+				this.actor.style.transform = `translate(${x}px, ${y}px)`;
+				this.parts.rig.setAttribute('transform', `rotate(${lean} 90 175)`);
+				this.parts.head.setAttribute('transform', `rotate(${head} 88 118)`);
+				this.heading.style.transform = `rotate(${tilt}deg)`;
+				// Read the SVG joint transform so the rope stays attached during a tug.
+				if (t >= 2.5 && t < 4.9) {
+					const stage = this.stage.getBoundingClientRect();
+					const hand = new DOMPoint(0, 27).matrixTransform(this.armFront.getScreenCTM());
+					const angle = tilt * Math.PI / 180;
+					const anchorX = w / 2 + (hx - w / 2) * Math.cos(angle);
+					const anchorY = hy + (hx - w / 2) * Math.sin(angle);
+					this.rope.setAttribute('d', `M${anchorX} ${anchorY} L${hand.x - stage.left} ${hand.y - stage.top}`);
+				}
+				this.shadow.style.opacity = String(t >= 7 ? .3 : .6);
+				this.shadow.style.transform = `translate(${x + 28 * s}px, ${ground + 215 * s}px) scale(${s})`;
+			}
+		}
+		new MaintenanceScene(document.querySelector('.maintenance'));
+	</script>
+</body>
+</html>
